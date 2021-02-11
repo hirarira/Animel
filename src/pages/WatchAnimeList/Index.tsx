@@ -4,6 +4,7 @@ import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview } from "../../data/AnimeReview";
+import ShowAnimeReview from "./ShowAnimeReview";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -47,6 +48,11 @@ const WatchAnimeList: React.FC = (()=>{
             setWatchYear={setWatchYear}
             setWatchSeason={setWatchSeason}
             getWatchDate={getWatchDate}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <ShowAnimeReview
+            reviewList={animeReviewList}
           />
         </Grid>
       </Grid>
