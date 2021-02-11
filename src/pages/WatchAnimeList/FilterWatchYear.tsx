@@ -5,7 +5,8 @@ interface Props {
   watchYear: string,
   watchSeason: string,
   setWatchYear: React.Dispatch<React.SetStateAction<string>>,
-  setWatchSeason: React.Dispatch<React.SetStateAction<string>>
+  setWatchSeason: React.Dispatch<React.SetStateAction<string>>,
+  getWatchDate: () => Promise<void>
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -71,19 +72,21 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
           <FormControl className={classes.inputSeason}>
             <InputLabel shrink id="demo-simple-select-label">季節</InputLabel>
             <Select
-              value={props.watchYear}
+              value={props.watchSeason}
               onChange={handleChangeSeason}
             >
-              { seasonList.map((year, idx)=>{
+              { seasonList.map((season, idx)=>{
                 return (
-                  <MenuItem key={idx} value={year}>{year}</MenuItem>
+                  <MenuItem key={idx} value={season}>{season}</MenuItem>
                 )
               })}
             </Select>
           </FormControl>
         </Grid>
         <Grid item xs={4}>
-          <Button variant="contained" color="primary">
+          <Button variant="contained" color="primary" onClick={()=>{
+            props.getWatchDate();
+          }}>
             絞り込み
           </Button>
         </Grid>

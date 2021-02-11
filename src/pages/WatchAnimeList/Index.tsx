@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { Button, Grid, InputLabel, makeStyles } from '@material-ui/core';
+import { Grid, makeStyles } from '@material-ui/core';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
+import { GetAnimeReview } from "../../data/getAnimeReview";
+import { AnimeReview } from "../../data/AnimeReview";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -17,11 +19,19 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 const WatchAnimeList: React.FC = (()=>{
-  const [watchYear, setWatchYear] = useState('2020');
-  const [watchSeason, setWatchSeason] = useState('');
+  const [watchYear, setWatchYear] = useState<string>('2020');
+  const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
   const [lowRate, setLowRate] = useState<number>(0);
+  const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([])
   const classes = useStyles();
+  const getAnimeReview = new GetAnimeReview();
+
+  const getWatchDate = async () => {
+    const path = `${watchYear}年${watchSeason}`;
+    const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
+    setAnimeReviewList(reviewList);
+  }
 
   return (
     <>
@@ -36,6 +46,7 @@ const WatchAnimeList: React.FC = (()=>{
             watchSeason={watchSeason}
             setWatchYear={setWatchYear}
             setWatchSeason={setWatchSeason}
+            getWatchDate={getWatchDate}
           />
         </Grid>
       </Grid>
