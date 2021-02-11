@@ -28,10 +28,28 @@ const WatchAnimeList: React.FC = (()=>{
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
 
+  const formatReviewData = (reviewList: AnimeReview[]): AnimeReview[] => {
+    // 評価順に並び替える
+    reviewList.sort((a: AnimeReview, b: AnimeReview)=>{
+      if(a.rate > b.rate) {
+        return -1;
+      }
+      if(a.rate < b.rate) {
+        return 1;
+      }
+      return 0;
+    })
+    // 0点以下を切り捨てる
+    reviewList = reviewList.filter((review: AnimeReview)=>{
+      return review.rate > 0;
+    })
+    return reviewList;
+  }
+
   const getWatchDate = async () => {
     const path = `${watchYear}年${watchSeason}`;
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
-    setAnimeReviewList(reviewList);
+    setAnimeReviewList(formatReviewData(reviewList));
   }
 
   return (
