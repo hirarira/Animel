@@ -24,11 +24,11 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
       <Table aria-label="simple table">
         <TableHead>
           <TableRow>
+            <TableCell className={`${classes.cell} ${classes.rank}`}>詳細</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>順位</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>RANK</TableCell>
             <TableCell className={classes.cell}>タイトル</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>評価</TableCell>
-            <TableCell className={`${classes.cell} ${classes.rank}`}>詳細</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
