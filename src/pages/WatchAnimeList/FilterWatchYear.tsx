@@ -10,7 +10,10 @@ interface Props {
 
 const useStyles = makeStyles((theme) => ({
   section: {
-    width: '100%'
+    width: 'calc(100% - 20px)',
+    boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
+    padding: '20px',
+    margin: '10px'
   },
   input: {
     width: "100px"
@@ -41,10 +44,10 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
         視聴年度から絞り込み
       </Grid>
       <Grid item xs={4}>
-        <Button variant="contained" color="primary" onClick={()=>{
+        <Button variant="contained" color="default" onClick={()=>{
           switchShowInput(!showInput);
         }}>
-          隠す
+          {showInput? '隠す': '表示'}
         </Button>
       </Grid>
       { showInput &&
