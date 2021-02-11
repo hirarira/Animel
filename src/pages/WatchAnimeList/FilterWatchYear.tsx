@@ -1,0 +1,93 @@
+import React, { useState } from "react";
+import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
+
+interface Props {
+  watchYear: string,
+  watchSeason: string,
+  setWatchYear: React.Dispatch<React.SetStateAction<string>>,
+  setWatchSeason: React.Dispatch<React.SetStateAction<string>>
+}
+
+const useStyles = makeStyles((theme) => ({
+  section: {
+    width: '100%'
+  },
+  input: {
+    width: "100px"
+  },
+  inputSeason: {
+    width: '50px'
+  }
+}));
+
+const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
+  const [showInput, switchShowInput] = useState<boolean>(true);
+  const classes = useStyles();
+  const handleChangeYear = (event: any) => {
+    props.setWatchYear(event.target.value);
+  }
+  const handleChangeSeason = (event: any) => {
+    props.setWatchSeason(event.target.value);
+  }
+  const startYear = 2010;
+  const endYear = 2021;
+  const yearNum = endYear-startYear+1;
+  const yearList = [...Array(yearNum)].map((a,x)=>{return startYear+x;});
+  const seasonList = ['', '冬', '春', '夏', '秋'];
+
+  return (
+    <Grid container justify="center" alignItems="center" className={classes.section}>
+      <Grid item xs={8}>
+        視聴年度から絞り込み
+      </Grid>
+      <Grid item xs={4}>
+        <Button variant="contained" color="primary" onClick={()=>{
+          switchShowInput(!showInput);
+        }}>
+          隠す
+        </Button>
+      </Grid>
+      { showInput &&
+        <>
+        <Grid item xs={4}>
+          <FormControl className={classes.input}>
+            <InputLabel shrink id="demo-simple-select-label">視聴年</InputLabel>
+            <Select
+              value={props.watchYear}
+              onChange={handleChangeYear}
+            >
+              { yearList.map((year, idx)=>{
+                return (
+                  <MenuItem key={idx} value={year}>{year}</MenuItem>
+                )
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={4}>
+          <FormControl className={classes.inputSeason}>
+            <InputLabel shrink id="demo-simple-select-label">季節</InputLabel>
+            <Select
+              value={props.watchYear}
+              onChange={handleChangeSeason}
+            >
+              { seasonList.map((year, idx)=>{
+                return (
+                  <MenuItem key={idx} value={year}>{year}</MenuItem>
+                )
+              })}
+            </Select>
+          </FormControl>
+        </Grid>
+        <Grid item xs={4}>
+          <Button variant="contained" color="primary">
+            絞り込み
+          </Button>
+        </Grid>
+        </>
+      }
+    </Grid>
+  )
+});
+
+export default FilterWatchYear;

@@ -1,13 +1,13 @@
 import React from 'react';
 import './App.css';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import Index from './pages/Index';
+import WatchAnimeList from './pages/WatchAnimeList/Index';
 
 function App() {
   return (
     <div className="App">
       <Router>
-        <Route exact path='/' component={Index}/>
+        <Route exact path='/' component={WatchAnimeList}/>
       </Router>
     </div>
   );
