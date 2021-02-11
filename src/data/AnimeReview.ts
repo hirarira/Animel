@@ -9,4 +9,11 @@ export interface AnimeReview {
   watchDate: string,
   rate: number,
   comment: string,
+  rank: Rank
+}
+
+export interface Rank {
+  id: number,
+  rank: number,
+  name: string
 }
