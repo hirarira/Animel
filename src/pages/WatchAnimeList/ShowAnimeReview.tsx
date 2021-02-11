@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Grid, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { AnimeReview } from "../../data/AnimeReview";
+import ShowOneAnimeReview from "./ShowOneAnimeReview";
 
 interface Props {
   reviewList: AnimeReview[]
@@ -33,13 +34,11 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
         <TableBody>
           {props.reviewList.map((review, idx)=>{
             return (
-              <TableRow key={idx}>
-                <TableCell className={classes.cell}>{idx+1}</TableCell>
-                <TableCell className={classes.cell}>{review.rate}</TableCell>
-                <TableCell className={classes.cell}>{review.title}</TableCell>
-                <TableCell className={classes.cell}>{review.rate}</TableCell>
-                <TableCell className={classes.cell}>詳細</TableCell>
-              </TableRow>
+              <ShowOneAnimeReview
+                key={idx}
+                idx={idx}
+                review={review}
+              />
             )
           })}
         </TableBody>
