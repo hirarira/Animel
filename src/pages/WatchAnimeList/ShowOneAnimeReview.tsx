@@ -51,8 +51,8 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         </TableCell>
         <TableCell className={`${classes.cell} ${classes.rank}`}>{props.idx+1}</TableCell>
         <TableCell className={classes.cell}>{props.review.rank.name}</TableCell>
-        <TableCell className={classes.cell}>{props.review.title}</TableCell>
         <TableCell className={classes.cell}>{props.review.rate}</TableCell>
+        <TableCell className={classes.cell}>{props.review.title}</TableCell>
       </TableRow>
       <TableRow>
         <TableCell className={classes.hiddenCell} colSpan={5}>

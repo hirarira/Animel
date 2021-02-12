@@ -27,8 +27,8 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <TableCell className={`${classes.cell} ${classes.rank}`}></TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>順位</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>RANK</TableCell>
-            <TableCell className={classes.cell}>タイトル</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>評価</TableCell>
+            <TableCell className={classes.cell}>タイトル</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
