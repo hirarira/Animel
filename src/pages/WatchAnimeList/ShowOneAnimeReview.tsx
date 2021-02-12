@@ -12,22 +12,24 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   cell: {
     padding: '8px',
-    fontSize: '14px'
+    fontSize: '12px'
   },
   button: {
     padding: '4px'
   },
   hiddenCell: {
-    paddingBottom: '0px',
-    paddingTop: '0px',
+    padding: '0px',
     fontSize: '14px'
   },
   comment: {
-    padding: '10px',
-    fontSize: '12px'
+    padding: '8px',
+    fontSize: 'min(3vw ,16px)'
   },
   rank: {
     width: '40px'
+  },
+  leftCell: {
+    width: '60px'
   }
 }));
 
@@ -55,33 +57,44 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
       <TableRow>
         <TableCell className={classes.hiddenCell} colSpan={5}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
-            <Grid container justify="center" alignItems="center">
-              <Grid item xs={4}>
-                視聴年度
-              </Grid>
-              <Grid item xs={8} className={classes.cell}>
-                {props.review.watchDate}
-              </Grid>
-              <Grid item xs={4}>
-                公式URL
-              </Grid>
-              <Grid item xs={8}>
-                <a href={props.review.publicURL}>{props.review.publicURL}</a>
-              </Grid>
-              <Grid item xs={4} style={{fontSize: '12px'}}>
-                <p>しょぼいカレンダー</p>
-                <p>URL</p>
-              </Grid>
-              <Grid item xs={8}>
-                <a href={shoboiURL}>{shoboiURL}</a>
-              </Grid>
-              <Grid item xs={2}>
-                コメント
-              </Grid>
-              <Grid item xs={10} className={classes.comment}>
-                {props.review.comment}
-              </Grid>
-            </Grid>
+            <TableContainer component={Paper}>
+              <Table>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className={`${classes.cell} ${classes.leftCell}`}>
+                      視聴年度
+                    </TableCell>
+                    <TableCell className={classes.cell}>
+                      {props.review.watchDate}
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={classes.cell}>
+                    公式URL
+                    </TableCell>
+                    <TableCell className={classes.cell}>
+                      <a href={props.review.publicURL}>{props.review.publicURL}</a>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={classes.cell}>
+                      しょぼいカレンダーURL
+                    </TableCell>
+                    <TableCell className={classes.cell}>
+                      <a href={shoboiURL}>{shoboiURL}</a>
+                    </TableCell>
+                  </TableRow>
+                  <TableRow>
+                    <TableCell className={classes.cell}>
+                      コメント
+                    </TableCell>
+                    <TableCell className={classes.comment}>
+                      {props.review.comment}
+                    </TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+             </TableContainer>
           </Collapse>
         </TableCell>
       </TableRow>

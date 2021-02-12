@@ -50,7 +50,7 @@ const WatchAnimeList: React.FC = (()=>{
         return rankList[i];
       }
     }
-    return null;
+    return rankList.slice(-1)[0];
   }
 
   const formatReviewData = (reviewList: AnimeReview[]): AnimeReview[] => {

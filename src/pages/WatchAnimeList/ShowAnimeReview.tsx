@@ -21,7 +21,7 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
   const classes = useStyles();
   return (
     <TableContainer component={Paper}>
-      <Table aria-label="simple table">
+      <Table aria-label="">
         <TableHead>
           <TableRow>
             <TableCell className={`${classes.cell} ${classes.rank}`}></TableCell>
