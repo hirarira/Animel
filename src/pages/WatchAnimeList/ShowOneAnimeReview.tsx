@@ -12,7 +12,7 @@ interface Props {
 const useStyles = makeStyles((theme) => ({
   cell: {
     padding: '8px',
-    fontSize: '12px'
+    fontSize: '14px'
   },
   button: {
     padding: '4px'
@@ -39,7 +39,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
   const shoboiURL = `https://cal.syoboi.jp/tid/${props.review.tid}`;
   return (
     <>
-      <TableRow>
+      <TableRow style={{ backgroundColor: props.review.rank.color }}>
         <TableCell className={`${classes.cell} ${classes.rank}`}>
           <IconButton 
             aria-label="expand row"
@@ -58,7 +58,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         <TableCell className={classes.hiddenCell} colSpan={5}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
             <TableContainer component={Paper}>
-              <Table>
+              <Table style={{ backgroundColor: props.review.rank.color, opacity: 0.8 }}>
                 <TableBody>
                   <TableRow>
                     <TableCell className={`${classes.cell} ${classes.leftCell}`}>

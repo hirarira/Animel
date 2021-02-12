@@ -15,5 +15,6 @@ export interface AnimeReview {
 export interface Rank {
   id: number,
   rank: number,
-  name: string
+  name: string,
+  color: string
 }
