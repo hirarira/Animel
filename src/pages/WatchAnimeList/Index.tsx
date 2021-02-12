@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, makeStyles } from '@material-ui/core';
+import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
@@ -24,7 +24,8 @@ const WatchAnimeList: React.FC = (()=>{
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
   const [lowRate, setLowRate] = useState<number>(0);
-  const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([])
+  const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
+  const [loading, switchLoading] = useState(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
 
@@ -79,8 +80,18 @@ const WatchAnimeList: React.FC = (()=>{
 
   const getWatchDate = async () => {
     const path = `${watchYear}年${watchSeason}`;
+    switchLoading(true);
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
     setAnimeReviewList(formatReviewData(reviewList));
+    switchLoading(false);
+  }
+
+  const getTitile = () => {
+    return (
+      <>
+        ひらたん（<a href="https://twitter.com/hirarira617/">@hirarira617</a>）：視聴したアニメリスト
+      </>
+    )
   }
 
   return (
@@ -88,7 +99,7 @@ const WatchAnimeList: React.FC = (()=>{
       <Header />
       <Grid container className={classes.main}>
         <Grid item xs={12} className={classes.title}>
-          視聴したアニメリスト
+          {getTitile()}
         </Grid>
         <Grid item xs={12}>
           <FilterWatchYear
@@ -100,9 +111,14 @@ const WatchAnimeList: React.FC = (()=>{
           />
         </Grid>
         <Grid item xs={12}>
-          <ShowAnimeReview
-            reviewList={animeReviewList}
-          />
+          {loading &&
+            <CircularProgress />
+          }
+          {!loading &&
+            <ShowAnimeReview
+              reviewList={animeReviewList}
+            />
+          }
         </Grid>
       </Grid>
     </>
