@@ -40,6 +40,9 @@ const Header: React.FC = (()=>{
         window.location.href = './anime_houshin.pdf';
       }}>アニメ評価方針（PDF）</MenuItem>
       <MenuItem onClick={()=>{
+        window.location.href = 'https://pollux.hirarira.net/showAnimeList/public/';
+      }}>旧アニメ視聴アプリ</MenuItem>
+      <MenuItem onClick={()=>{
         window.location.href = 'https://hirarira.net/';
       }}>TOPに戻る</MenuItem>
       <MenuItem onClick={()=>{
