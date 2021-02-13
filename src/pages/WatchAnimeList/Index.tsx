@@ -17,7 +17,13 @@ const useStyles = makeStyles((theme) => ({
   },
   section: {
     width: '100%'
-  }
+  },
+  inputSection: {
+    width: 'calc(100% - 20px)',
+    boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
+    padding: '10px',
+    margin: '10px'
+  },
 }));
 
 const WatchAnimeList: React.FC = (()=>{
@@ -110,7 +116,7 @@ const WatchAnimeList: React.FC = (()=>{
         <Grid item xs={12} className={classes.title}>
           {getTitile()}
         </Grid>
-        <Grid item xs={12}>
+        <Grid item xs={12} className={classes.inputSection}>
           <FilterWatchYear
             watchYear={watchYear}
             watchSeason={watchSeason}
@@ -118,8 +124,6 @@ const WatchAnimeList: React.FC = (()=>{
             setWatchSeason={setWatchSeason}
             getWatchDate={getWatchDate}
           />
-        </Grid>
-        <Grid item xs={12}>
           <FilterRate
             lowRate={lowRate}
             highRate={highRate}

@@ -10,12 +10,6 @@ interface Props {
 }
 
 const useStyles = makeStyles((theme) => ({
-  section: {
-    width: 'calc(100% - 20px)',
-    boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
-    padding: '10px',
-    margin: '10px'
-  },
   input: {
     width: "calc(100% - 40px)",
     marginLeft: '20px',
@@ -28,7 +22,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
   const classes = useStyles();
 
   return (
-    <Grid container justify="center" alignItems="center" className={classes.section}>
+    <Grid container justify="center" alignItems="center">
       <Grid item xs={8}>
       評価から絞り込み
       </Grid>
