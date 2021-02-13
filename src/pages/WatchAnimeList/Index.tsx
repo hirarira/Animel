@@ -47,7 +47,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [watchYear, setWatchYear] = useState<string>('2020');
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
-  const [lowRate, setLowRate] = useState<number>(0);
+  const [lowRate, setLowRate] = useState<number>(70);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const classes = useStyles();
