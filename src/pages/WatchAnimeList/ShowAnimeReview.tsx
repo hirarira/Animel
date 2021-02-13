@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Grid, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Grid, Hidden, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { AnimeReview } from "../../data/AnimeReview";
 import ShowOneAnimeReview from "./ShowOneAnimeReview";
 
@@ -28,6 +28,9 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <TableCell className={`${classes.cell} ${classes.rank}`}>順位</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>RANK</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>評価</TableCell>
+            <Hidden xsDown>
+              <TableCell className={`${classes.cell} ${classes.rank}`}>視聴時期</TableCell>
+            </Hidden>
             <TableCell className={classes.cell}>タイトル</TableCell>
           </TableRow>
         </TableHead>

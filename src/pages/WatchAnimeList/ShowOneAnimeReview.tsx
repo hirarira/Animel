@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Collapse, Grid, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Button, Collapse, Grid, Hidden, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
 import { AnimeReview } from "../../data/AnimeReview";
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
@@ -30,6 +30,9 @@ const useStyles = makeStyles((theme) => ({
   },
   leftCell: {
     width: '60px'
+  },
+  watchDateCell: {
+    width: '80px'
   }
 }));
 
@@ -51,7 +54,15 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         </TableCell>
         <TableCell className={`${classes.cell} ${classes.rank}`}>{props.idx+1}</TableCell>
         <TableCell className={classes.cell}>{props.review.rank.name}</TableCell>
-        <TableCell className={classes.cell}>{props.review.rate}</TableCell>
+        <TableCell className={classes.cell}>
+          {props.review.rate}
+        </TableCell>
+        <Hidden xsDown>
+          {/** 視聴時期 */}
+          <TableCell className={`${classes.cell} ${classes.watchDateCell}`}>
+            {props.review.watchDate}
+          </TableCell>
+        </Hidden>
         <TableCell className={classes.cell}>{props.review.title}</TableCell>
       </TableRow>
       <TableRow>
