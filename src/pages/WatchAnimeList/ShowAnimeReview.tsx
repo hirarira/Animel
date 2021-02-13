@@ -4,7 +4,8 @@ import { AnimeReview } from "../../data/AnimeReview";
 import ShowOneAnimeReview from "./ShowOneAnimeReview";
 
 interface Props {
-  reviewList: AnimeReview[]
+  reviewList: AnimeReview[],
+  isPrivateMode: boolean
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -47,6 +48,7 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
                 key={idx}
                 idx={idx}
                 review={review}
+                isPrivateMode={props.isPrivateMode}
               />
             )
           })}

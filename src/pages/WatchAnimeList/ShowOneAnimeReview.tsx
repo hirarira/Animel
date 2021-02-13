@@ -3,10 +3,12 @@ import { Button, Collapse, Grid, Hidden, IconButton, makeStyles, Paper, Table, T
 import { AnimeReview } from "../../data/AnimeReview";
 import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import { showMinogashiAnimeURL } from "./Index";
 
 interface Props {
   idx: number,
-  review: AnimeReview
+  review: AnimeReview,
+  isPrivateMode: boolean
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -40,6 +42,18 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
   const classes = useStyles();
   const [showDetail, switchShowDetail] = useState<boolean>(false);
   const shoboiURL = `https://cal.syoboi.jp/tid/${props.review.tid}`;
+  const setAnimeTitle = () => {
+    const animeTitle = props.review.title;
+    if(props.isPrivateMode) {
+      const url = `${showMinogashiAnimeURL}showAnimeStoryList.html?tid=${props.review.tid}`;
+      return (
+        <a href={url}>{animeTitle}</a>
+      )
+    }
+    else {
+      return animeTitle;
+    }
+  }
   return (
     <>
       <TableRow style={{ backgroundColor: props.review.rank.color }}>
@@ -53,7 +67,9 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
           </IconButton>
         </TableCell>
         <TableCell className={`${classes.cell} ${classes.rank}`}>{props.idx+1}</TableCell>
-        <TableCell className={classes.cell}>{props.review.rank.name}</TableCell>
+        <TableCell className={classes.cell}>
+          {props.review.rank.name}
+        </TableCell>
         <TableCell className={classes.cell}>
           {props.review.rate}
         </TableCell>
@@ -63,7 +79,9 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
             {props.review.watchDate}
           </TableCell>
         </Hidden>
-        <TableCell className={classes.cell}>{props.review.title}</TableCell>
+        <TableCell className={classes.cell}>
+          {setAnimeTitle()}
+        </TableCell>
         <Hidden mdDown>
           <TableCell className={`${classes.cell}`}>
             {props.review.comment}

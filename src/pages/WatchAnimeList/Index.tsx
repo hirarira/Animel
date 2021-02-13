@@ -40,9 +40,9 @@ export const rankList: Rank[] = [
   {id: 8,  rank: 30, name:"駄作",     color: '#a9a9a9'},
   {id: 9,  rank: 1,  name:"問題作",   color: '#ff7f50'},
   {id: 10, rank: 0,  name:"未評価",   color: '#ffffff'},
-  {id: 11, rank: -1, name:"評価不能", color: '#ffffff'},
+  {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
-  {id: 12, rank: -3, name:"視聴断念", color: '#ffffff'},
+  {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -83,9 +83,12 @@ const WatchAnimeList: React.FC = (()=>{
       }
     })
     // 0点以下を切り捨てる
-    reviewList = reviewList.filter((review: AnimeReview)=>{
-      return review.rate > 0;
-    })
+    // PrivateModeでは全てを表示する
+    if(!isPrivateMode) {
+      reviewList = reviewList.filter((review: AnimeReview)=>{
+        return review.rate > 0;
+      })
+    }
     return reviewList;
   }
 
@@ -151,6 +154,7 @@ const WatchAnimeList: React.FC = (()=>{
           {!loading &&
             <ShowAnimeReview
               reviewList={animeReviewList}
+              isPrivateMode={isPrivateMode}
             />
           }
         </Grid>
