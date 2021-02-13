@@ -26,24 +26,11 @@ const useStyles = makeStyles((theme) => ({
 const FilterRate: React.FC<Props> = ((props: Props)=>{
   const [showInput, switchShowInput] = useState<boolean>(true);
   const classes = useStyles();
-  /*
-  const handleChangeYear = (event: any) => {
-    props.setWatchYear(event.target.value);
-  }
-  const handleChangeSeason = (event: any) => {
-    props.setWatchSeason(event.target.value);
-  }
-  */
-  const startYear = 2010;
-  const endYear = 2021;
-  const yearNum = endYear-startYear+1;
-  const yearList = [...Array(yearNum)].map((a,x)=>{return startYear+x;});
-  const seasonList = ['', '冬', '春', '夏', '秋'];
 
   return (
     <Grid container justify="center" alignItems="center" className={classes.section}>
       <Grid item xs={8}>
-        レートから絞り込み
+      評価から絞り込み
       </Grid>
       <Grid item xs={4}>
         <Button variant="contained" color="default" onClick={()=>{
@@ -54,12 +41,12 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
       </Grid>
       { showInput &&
         <>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Typography gutterBottom>
-              上限RANK
+              上限評価：{props.highRate}
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={7}>
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
@@ -77,12 +64,12 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               className={classes.input}
             />
           </Grid>
-          <Grid item xs={4}>
+          <Grid item xs={5}>
             <Typography gutterBottom>
-              下限RANK
+              下限評価：{props.lowRate}
             </Typography>
           </Grid>
-          <Grid item xs={8}>
+          <Grid item xs={7}>
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
