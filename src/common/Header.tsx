@@ -37,7 +37,7 @@ const Header: React.FC = (()=>{
       className={classes.section}
     >
       <MenuItem onClick={()=>{
-        window.location.href = '/anime_houshin.pdf';
+        window.location.href = './anime_houshin.pdf';
       }}>アニメ評価方針（PDF）</MenuItem>
       <MenuItem onClick={()=>{
         window.location.href = 'https://hirarira.net/';
