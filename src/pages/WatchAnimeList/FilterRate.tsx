@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, Slider, Typography } from '@material-ui/core';
+import { rankList } from "./Index";
+import { Rank } from "../../data/AnimeReview";
 
 interface Props {
   lowRate: number,
@@ -14,12 +16,27 @@ const useStyles = makeStyles((theme) => ({
     width: "calc(100% - 40px)",
     marginLeft: '20px',
     marginRight: '20px'
+  },
+  selectRank: {
+    width: "120px"
   }
 }));
 
 const FilterRate: React.FC<Props> = ((props: Props)=>{
   const [showInput, switchShowInput] = useState<boolean>(true);
+  const [selectRank, switchSelectRank] = useState(0);
   const classes = useStyles();
+
+  const selectSetRank = (e: any) => {
+    const value = e.target.value;
+    switchSelectRank(value);
+    const targetRank: Rank = rankList[value];
+    const upRank: Rank = rankList[value-1];
+    const min = targetRank? targetRank.rank: 0;
+    const max = upRank? upRank.rank - 1: 100;
+    props.setHighRate(max);
+    props.setLowRate(min);
+  }
 
   return (
     <Grid container justify="center" alignItems="center">
@@ -81,7 +98,25 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               className={classes.input}
             />
           </Grid>
-          <Grid item xs={8}></Grid>
+          <Grid item xs={8}>
+            <FormControl className={classes.selectRank}>
+              <InputLabel id="demo-simple-select-label">ランクより選択</InputLabel>
+              <Select
+                labelId="selectRank"
+                value={selectRank}
+                onChange={selectSetRank}
+              >
+                {rankList.map((rank: Rank, idx: number)=>{
+                  if(rank.rank <= 0) {
+                    return null;
+                  }
+                  return (
+                    <MenuItem key={idx} value={rank.id}>{rank.name}</MenuItem>
+                  )
+                })}
+              </Select>
+            </FormControl>
+          </Grid>
           <Grid item xs={4}>
             <Button variant="contained" color="primary" onClick={()=>{
               props.getRate();
