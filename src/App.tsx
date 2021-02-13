@@ -6,7 +6,7 @@ import WatchAnimeList from './pages/WatchAnimeList/Index';
 function App() {
   return (
     <div className="App">
-      <Router>
+      <Router basename={'/Animel'}>
         <Route exact path='/' component={WatchAnimeList}/>
       </Router>
     </div>
