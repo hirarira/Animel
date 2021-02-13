@@ -89,7 +89,8 @@ const WatchAnimeList: React.FC = (()=>{
   const getTitile = () => {
     return (
       <>
-        ひらたん（<a href="https://twitter.com/hirarira617/">@hirarira617</a>）：視聴したアニメリスト
+        <div>ひらたん（<a href="https://twitter.com/hirarira617/">@hirarira617</a>）</div>
+        <div>視聴したアニメリスト</div>
       </>
     )
   }
