@@ -36,6 +36,7 @@ jobs:
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           LOCAL_DIR: build
           REMOTE_DIR: Animel
+          ARGS: --verbose --parallel=100
       # Notice Slack
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@master
