@@ -1,0 +1,29 @@
+name: deploy-site
+on: 
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+jobs:
+  deploy:
+    runs-on: ubuntu-18.04
+    timeout-minutes: 10
+    steps:
+      # Checkout Branch
+      - uses: actions/checkout@v2
+      # Use Node.js
+      - name: Use Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v1
+        with:
+        node-version: ${{ matrix.node-version }}
+      # npm install
+      - name: npm install
+        run: npm install
+      # build ReactApp
+      - name: React Build
+        run: npm run build
+      # Check Build Directory
+      - name: Listup-directory
+        run: ls -la build
