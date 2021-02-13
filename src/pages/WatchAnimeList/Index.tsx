@@ -5,6 +5,7 @@ import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
+import FilterRate from "./FilterRate";
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -86,6 +87,10 @@ const WatchAnimeList: React.FC = (()=>{
     switchLoading(false);
   }
 
+  const getRate = async () => {
+
+  }
+
   const getTitile = () => {
     return (
       <>
@@ -109,6 +114,15 @@ const WatchAnimeList: React.FC = (()=>{
             setWatchYear={setWatchYear}
             setWatchSeason={setWatchSeason}
             getWatchDate={getWatchDate}
+          />
+        </Grid>
+        <Grid item xs={12}>
+          <FilterRate
+            lowRate={lowRate}
+            highRate={highRate}
+            setLowRate={setLowRate}
+            setHighRate={setHighRate}
+            getRate={getRate}
           />
         </Grid>
         <Grid item xs={12}>

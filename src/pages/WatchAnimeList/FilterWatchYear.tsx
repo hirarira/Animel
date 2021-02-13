@@ -13,7 +13,7 @@ const useStyles = makeStyles((theme) => ({
   section: {
     width: 'calc(100% - 20px)',
     boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
-    padding: '20px',
+    padding: '10px',
     margin: '10px'
   },
   input: {
