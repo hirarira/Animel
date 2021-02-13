@@ -36,9 +36,15 @@ const Header: React.FC = (()=>{
       onClose={handleClose}
       className={classes.section}
     >
-      <MenuItem>Profile</MenuItem>
-      <MenuItem>My account</MenuItem>
-      <MenuItem>Logout</MenuItem>
+      <MenuItem onClick={()=>{
+        window.location.href = '/anime_houshin.pdf';
+      }}>アニメ評価方針（PDF）</MenuItem>
+      <MenuItem onClick={()=>{
+        window.location.href = 'https://hirarira.net/';
+      }}>TOPに戻る</MenuItem>
+      <MenuItem onClick={()=>{
+        window.location.href = 'https://twitter.com/hirarira617/';
+      }}>Twitterに戻る</MenuItem>
     </Menu>
     </>
   )
