@@ -27,3 +27,17 @@ jobs:
       # Check Build Directory
       - name: Listup-directory
         run: ls -la build
+      # Deploy FTP Server
+      - name: FTP-Deploy-Action
+        uses: SamKirkland/FTP-Deploy-Action@2.0.0 
+        env:
+          FTP_SERVER: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USER }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+          LOCAL_DIR: build
+          REMOTE_DIR: Animel
+      # Notice Slack
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@master
+        env:
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
