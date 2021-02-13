@@ -64,9 +64,14 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
           </TableCell>
         </Hidden>
         <TableCell className={classes.cell}>{props.review.title}</TableCell>
+        <Hidden mdDown>
+          <TableCell className={`${classes.cell}`}>
+            {props.review.comment}
+          </TableCell>
+        </Hidden>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.hiddenCell} colSpan={5}>
+        <TableCell className={classes.hiddenCell} colSpan={7}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
             <TableContainer component={Paper}>
               <Table style={{ backgroundColor: props.review.rank.color, opacity: 0.8 }}>
@@ -95,14 +100,16 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
                       <a href={shoboiURL}>{shoboiURL}</a>
                     </TableCell>
                   </TableRow>
-                  <TableRow>
-                    <TableCell className={classes.cell}>
-                      コメント
-                    </TableCell>
-                    <TableCell className={classes.comment}>
-                      {props.review.comment}
-                    </TableCell>
-                  </TableRow>
+                  <Hidden mdUp>
+                    <TableRow>
+                      <TableCell className={classes.cell}>
+                        コメント
+                      </TableCell>
+                      <TableCell className={classes.comment}>
+                        {props.review.comment}
+                      </TableCell>
+                    </TableRow>
+                  </Hidden>
                 </TableBody>
               </Table>
              </TableContainer>

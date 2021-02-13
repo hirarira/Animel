@@ -14,6 +14,9 @@ const useStyles = makeStyles((theme) => ({
   },
   rank: {
     width: '40px'
+  },
+  title: {
+    minWidth: '250px'
   }
 }));
 
@@ -31,7 +34,10 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <Hidden xsDown>
               <TableCell className={`${classes.cell} ${classes.rank}`}>視聴時期</TableCell>
             </Hidden>
-            <TableCell className={classes.cell}>タイトル</TableCell>
+            <TableCell className={`${classes.cell} ${classes.title}`}>タイトル</TableCell>
+            <Hidden mdDown>
+              <TableCell className={`${classes.cell}`}>コメント</TableCell>
+            </Hidden>
           </TableRow>
         </TableHead>
         <TableBody>
