@@ -100,6 +100,14 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               className={classes.input}
             />
           </Grid>
+          <Grid item xs={8}></Grid>
+          <Grid item xs={4}>
+            <Button variant="contained" color="primary" onClick={()=>{
+              props.getRate();
+            }}>
+              絞り込み
+          </Button>
+          </Grid>
         </>
       }
     </Grid>

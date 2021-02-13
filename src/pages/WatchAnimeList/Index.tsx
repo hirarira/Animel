@@ -88,7 +88,10 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   const getRate = async () => {
-
+    switchLoading(true);
+    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(highRate, lowRate);
+    setAnimeReviewList(formatReviewData(reviewList));
+    switchLoading(false);
   }
 
   const getTitile = () => {
