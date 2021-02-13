@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
@@ -6,6 +6,8 @@ import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
+
+export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
 const useStyles = makeStyles((theme) => ({
   main: {
@@ -50,6 +52,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [lowRate, setLowRate] = useState<number>(70);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
+  const [isPrivateMode, switchPrivateMode] = useState(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
 
@@ -110,9 +113,17 @@ const WatchAnimeList: React.FC = (()=>{
     )
   }
 
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const isPrivate = params.get('showPrivate');
+    switchPrivateMode(isPrivate === 'true');
+  }, [])
+
   return (
     <>
-      <Header />
+      <Header
+        isPrivate={isPrivateMode}
+      />
       <Grid container className={classes.main}>
         <Grid item xs={12} className={classes.title}>
           {getTitile()}

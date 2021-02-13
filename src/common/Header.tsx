@@ -1,13 +1,13 @@
-import React, { useState } from "react";
-import { AppBar, Grid, IconButton, makeStyles, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
+import React from "react";
+import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
+import { showMinogashiAnimeURL } from "../pages/WatchAnimeList/Index";
 
-const useStyles = makeStyles((theme) => ({
-  section: {
-  },
-}));
+interface Props {
+  isPrivate: boolean
+}
 
-const Header: React.FC = (()=>{
+const Header: React.FC<Props> = ((props: Props)=>{
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -15,7 +15,6 @@ const Header: React.FC = (()=>{
   const handleClose = () => {
     setAnchorEl(null);
   };
-  const classes = useStyles();
   return (
     <>
     <AppBar position="static">
@@ -34,8 +33,12 @@ const Header: React.FC = (()=>{
       keepMounted
       open={Boolean(anchorEl)}
       onClose={handleClose}
-      className={classes.section}
     >
+      { props.isPrivate &&
+        <MenuItem onClick={()=>{
+          window.location.href = showMinogashiAnimeURL;
+        }}>アニメ見逃し・評価アプリ</MenuItem>
+      }
       <MenuItem onClick={()=>{
         window.location.href = './anime_houshin.pdf';
       }}>アニメ評価方針（PDF）</MenuItem>
