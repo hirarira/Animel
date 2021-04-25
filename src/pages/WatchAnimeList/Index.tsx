@@ -6,6 +6,7 @@ import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
+import GoogleLogin from 'react-google-login';
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -55,6 +56,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [isPrivateMode, switchPrivateMode] = useState(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
+  const googleClientID: string = process.env.GOOGLE_CLIENT_ID || "";
 
   const setRank = (rank: number) => {
     for(let i=0; i<rankList.length; i++){
@@ -116,6 +118,10 @@ const WatchAnimeList: React.FC = (()=>{
     )
   }
 
+  const responseGoogle = (response: any) => {
+    console.log(response);
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const isPrivate = params.get('showPrivate');
@@ -128,8 +134,19 @@ const WatchAnimeList: React.FC = (()=>{
         isPrivate={isPrivateMode}
       />
       <Grid container className={classes.main}>
-        <Grid item xs={12} className={classes.title}>
+        <Grid item xs={2} className={classes.title}>
+        </Grid>
+        <Grid item xs={8} className={classes.title}>
           {getTitile()}
+        </Grid>
+        <Grid item xs={2} className={classes.title}>
+          <GoogleLogin
+            clientId={googleClientID}
+            buttonText="Login"
+            onSuccess={responseGoogle}
+            onFailure={responseGoogle}
+            cookiePolicy={'single_host_origin'}
+          />
         </Grid>
         <Grid item xs={12} className={classes.inputSection}>
           <FilterWatchYear
