@@ -7,6 +7,7 @@ import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
 import GoogleLogin from 'react-google-login';
+import { GoogleOAuth } from "../../type/GoogleOAuth";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -54,6 +55,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
+  const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -119,7 +121,21 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   const responseGoogle = (response: any) => {
-    console.log(response);
+    setLoginInfo(response)
+  }
+
+  const getLoginInfo = () => {
+    if(loginInfo === null) {
+      return null;
+    }
+    return (
+      <>
+        <div><img src={loginInfo.profileObj.imageUrl} width="32" height="32" /></div>
+        <div>あなたは{loginInfo.profileObj.name}でログインをしています</div>
+        <div>{loginInfo.profileObj.email}</div>
+        <div>GoogleID: {loginInfo.profileObj.googleId}</div>
+      </>
+    )
   }
 
   useEffect(() => {
@@ -140,13 +156,21 @@ const WatchAnimeList: React.FC = (()=>{
           {getTitile()}
         </Grid>
         <Grid item xs={2} className={classes.title}>
-          <GoogleLogin
-            clientId={googleClientID}
-            buttonText="Login"
-            onSuccess={responseGoogle}
-            onFailure={responseGoogle}
-            cookiePolicy={'single_host_origin'}
-          />
+          <div>
+            管理用Login
+          </div>
+          <div>
+            <GoogleLogin
+              clientId={googleClientID}
+              buttonText="Login"
+              onSuccess={responseGoogle}
+              onFailure={responseGoogle}
+              cookiePolicy={'single_host_origin'}
+            />
+          </div>
+        </Grid>
+        <Grid item xs={12}>
+          {getLoginInfo()}
         </Grid>
         <Grid item xs={12} className={classes.inputSection}>
           <FilterWatchYear
