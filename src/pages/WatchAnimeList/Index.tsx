@@ -56,7 +56,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [isPrivateMode, switchPrivateMode] = useState(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
-  const googleClientID: string = process.env.GOOGLE_CLIENT_ID || "";
+  const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
 
   const setRank = (rank: number) => {
     for(let i=0; i<rankList.length; i++){
