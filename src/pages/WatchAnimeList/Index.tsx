@@ -60,6 +60,7 @@ const WatchAnimeList: React.FC = (()=>{
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
+  const matchOwnerID = process.env.REACT_APP_ALLOW_GOOGLE_ID;
 
   const setRank = (rank: number) => {
     for(let i=0; i<rankList.length; i++){
@@ -125,6 +126,8 @@ const WatchAnimeList: React.FC = (()=>{
     setLoginInfo(response)
     setGoogleProfile(response.profileObj);
     localStorage.setItem('googleProfile', JSON.stringify(response.profileObj));
+    const isPrivate = response.profileObj.googleId === matchOwnerID;
+    switchPrivateMode(isPrivate);
   }
 
   const getLoginInfo = () => {
@@ -142,14 +145,13 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const isPrivate = params.get('showPrivate');
-    switchPrivateMode(isPrivate === 'true');
     // LocalStorageからログイン情報を抽出する
     const googleProfileStr: string | null = localStorage.getItem("googleProfile");
     if(googleProfileStr) {
       const googleProfile: GoogleProfile = JSON.parse(googleProfileStr);
       setGoogleProfile(googleProfile);
+      const isPrivate = googleProfile.googleId === matchOwnerID;
+      switchPrivateMode(isPrivate);
     }
   }, [])
 
