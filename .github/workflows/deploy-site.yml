@@ -20,8 +20,11 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
       # set .env file
-      - name: Set Env file
-        run: echo "REACT_APP_ALLOW_GOOGLE_ID=${{ secrets.REACT_APP_ALLOW_GOOGLE_ID }}" > .env && echo "REACT_APP_GOOGLE_CLIENT_ID={{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> .env
+      - name: Set Env REACT_APP_ALLOW_GOOGLE_ID
+        run: echo "REACT_APP_ALLOW_GOOGLE_ID=${{ secrets.REACT_APP_ALLOW_GOOGLE_ID }}" > .env
+      # set .env file
+      - name: Set Env REACT_APP_GOOGLE_CLIENT_ID
+        run: echo "REACT_APP_GOOGLE_CLIENT_ID={{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> .env
       # npm install
       - name: npm install
         run: npm install
