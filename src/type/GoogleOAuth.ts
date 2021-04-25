@@ -6,7 +6,7 @@ export interface GoogleOAuth {
   tokenObj: TokenObj;
   tokenId: string;
   accessToken: string;
-  profileObj: ProfileObj;
+  profileObj: GoogleProfile;
 }
 
 export interface ExtraQueryParams {
@@ -51,7 +51,7 @@ export interface TokenObj {
   idpId: string;
 }
 
-export interface ProfileObj {
+export interface GoogleProfile {
   googleId: string;
   imageUrl: string;
   email: string;

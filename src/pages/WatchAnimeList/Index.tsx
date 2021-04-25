@@ -7,7 +7,7 @@ import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
 import GoogleLogin from 'react-google-login';
-import { GoogleOAuth } from "../../type/GoogleOAuth";
+import { GoogleOAuth, GoogleProfile } from "../../type/GoogleOAuth";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -56,6 +56,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
   const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
+  const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -122,18 +123,20 @@ const WatchAnimeList: React.FC = (()=>{
 
   const responseGoogle = (response: any) => {
     setLoginInfo(response)
+    setGoogleProfile(response.profileObj);
+    localStorage.setItem('googleProfile', JSON.stringify(response.profileObj));
   }
 
   const getLoginInfo = () => {
-    if(loginInfo === null) {
+    if(googleProfile === null) {
       return null;
     }
     return (
       <>
-        <div><img src={loginInfo.profileObj.imageUrl} width="32" height="32" /></div>
-        <div>あなたは{loginInfo.profileObj.name}でログインをしています</div>
-        <div>{loginInfo.profileObj.email}</div>
-        <div>GoogleID: {loginInfo.profileObj.googleId}</div>
+        <div><img src={googleProfile.imageUrl} width="32" height="32" /></div>
+        <div>あなたは{googleProfile.name}でログインをしています</div>
+        <div>{googleProfile.email}</div>
+        <div>GoogleID: {googleProfile.googleId}</div>
       </>
     )
   }
@@ -142,6 +145,12 @@ const WatchAnimeList: React.FC = (()=>{
     const params = new URLSearchParams(window.location.search);
     const isPrivate = params.get('showPrivate');
     switchPrivateMode(isPrivate === 'true');
+    // LocalStorageからログイン情報を抽出する
+    const googleProfileStr: string | null = localStorage.getItem("googleProfile");
+    if(googleProfileStr) {
+      const googleProfile: GoogleProfile = JSON.parse(googleProfileStr);
+      setGoogleProfile(googleProfile);
+    }
   }, [])
 
   return (
