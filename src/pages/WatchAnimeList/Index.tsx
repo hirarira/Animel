@@ -6,6 +6,8 @@ import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
+import GoogleLogin from 'react-google-login';
+import { GoogleOAuth, GoogleProfile } from "../../type/GoogleOAuth";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -53,8 +55,12 @@ const WatchAnimeList: React.FC = (()=>{
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
+  const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
+  const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
+  const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
+  const matchOwnerID = process.env.REACT_APP_ALLOW_GOOGLE_ID;
 
   const setRank = (rank: number) => {
     for(let i=0; i<rankList.length; i++){
@@ -116,10 +122,37 @@ const WatchAnimeList: React.FC = (()=>{
     )
   }
 
+  const responseGoogle = (response: any) => {
+    setLoginInfo(response)
+    setGoogleProfile(response.profileObj);
+    localStorage.setItem('googleProfile', JSON.stringify(response.profileObj));
+    const isPrivate = response.profileObj.googleId === matchOwnerID;
+    switchPrivateMode(isPrivate);
+  }
+
+  const getLoginInfo = () => {
+    if(googleProfile === null) {
+      return null;
+    }
+    return (
+      <>
+        <div><img src={googleProfile.imageUrl} width="32" height="32" /></div>
+        <div>あなたは{googleProfile.name}でログインをしています</div>
+        <div>{googleProfile.email}</div>
+        <div>GoogleID: {googleProfile.googleId}</div>
+      </>
+    )
+  }
+
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const isPrivate = params.get('showPrivate');
-    switchPrivateMode(isPrivate === 'true');
+    // LocalStorageからログイン情報を抽出する
+    const googleProfileStr: string | null = localStorage.getItem("googleProfile");
+    if(googleProfileStr) {
+      const googleProfile: GoogleProfile = JSON.parse(googleProfileStr);
+      setGoogleProfile(googleProfile);
+      const isPrivate = googleProfile.googleId === matchOwnerID;
+      switchPrivateMode(isPrivate);
+    }
   }, [])
 
   return (
@@ -128,8 +161,27 @@ const WatchAnimeList: React.FC = (()=>{
         isPrivate={isPrivateMode}
       />
       <Grid container className={classes.main}>
-        <Grid item xs={12} className={classes.title}>
+        <Grid item xs={2} className={classes.title}>
+        </Grid>
+        <Grid item xs={8} className={classes.title}>
           {getTitile()}
+        </Grid>
+        <Grid item xs={2} className={classes.title}>
+          <div>
+            管理用Login
+          </div>
+          <div>
+            <GoogleLogin
+              clientId={googleClientID}
+              buttonText="Login"
+              onSuccess={responseGoogle}
+              onFailure={responseGoogle}
+              cookiePolicy={'single_host_origin'}
+            />
+          </div>
+        </Grid>
+        <Grid item xs={12}>
+          {getLoginInfo()}
         </Grid>
         <Grid item xs={12} className={classes.inputSection}>
           <FilterWatchYear
