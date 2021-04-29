@@ -2,6 +2,7 @@ import React from "react";
 import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
 import { showMinogashiAnimeURL } from "../pages/WatchAnimeList/Index";
+import { Link } from 'react-router-dom';
 
 interface Props {
   isPrivate: boolean
@@ -34,23 +35,51 @@ const Header: React.FC<Props> = ((props: Props)=>{
       open={Boolean(anchorEl)}
       onClose={handleClose}
     >
+      <MenuItem>
+        <Link to="/">
+          アニメ評価ページ
+        </Link>
+      </MenuItem>
+      { props.isPrivate &&
+        <MenuItem>
+          <Link to="/showMinogashiAnime">
+            今日のアニメ一覧
+          </Link>
+        </MenuItem>
+      }
       { props.isPrivate &&
         <MenuItem onClick={()=>{
           window.location.href = showMinogashiAnimeURL;
-        }}>アニメ見逃し・評価アプリ</MenuItem>
+        }}>旧アニメ見逃し・評価アプリ</MenuItem>
       }
-      <MenuItem onClick={()=>{
-        window.location.href = './anime_houshin.pdf';
-      }}>アニメ評価方針（PDF）</MenuItem>
-      <MenuItem onClick={()=>{
-        window.location.href = 'https://pollux.hirarira.net/showAnimeList/public/';
-      }}>旧アニメ視聴アプリ</MenuItem>
-      <MenuItem onClick={()=>{
-        window.location.href = 'https://hirarira.net/';
-      }}>TOPに戻る</MenuItem>
-      <MenuItem onClick={()=>{
-        window.location.href = 'https://twitter.com/hirarira617/';
-      }}>Twitterに戻る</MenuItem>
+      <MenuItem
+        onClick={()=>{
+          window.location.href = './anime_houshin.pdf';
+        }}
+      >
+        アニメ評価方針（PDF）
+      </MenuItem>
+      <MenuItem
+        onClick={()=>{
+          window.location.href = 'https://pollux.hirarira.net/showAnimeList/public/';
+        }}
+      >
+        旧アニメ視聴アプリ
+      </MenuItem>
+      <MenuItem
+        onClick={()=>{
+          window.location.href = 'https://hirarira.net/';
+        }}
+      >
+        TOPに戻る
+      </MenuItem>
+      <MenuItem
+        onClick={()=>{
+          window.location.href = 'https://twitter.com/hirarira617/';
+        }}
+      >
+        Twitterに戻る
+      </MenuItem>
     </Menu>
     </>
   )
