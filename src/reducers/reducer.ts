@@ -4,12 +4,14 @@ import { Actions } from './actionns';
 
 export interface State {
   test: number,
-  loginInfo: GoogleProfile | null
+  loginInfo: GoogleProfile | null,
+  isShowPrivate: boolean
 }
 
 export const initialState: State = {
   test: 0,
-  loginInfo: null
+  loginInfo: null,
+  isShowPrivate: false
 }
 
 export const Reducer = reducerWithInitialState(initialState)
@@ -23,5 +25,11 @@ export const Reducer = reducerWithInitialState(initialState)
   return {
     ...state,
     loginInfo: value
+  }
+})
+.case(Actions.switchIsShowPrivate, (state, value) => {
+  return {
+    ...state,
+    isShowPrivate: value
   }
 })

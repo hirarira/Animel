@@ -1,24 +1,24 @@
+import { Grid } from "@material-ui/core";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import CheckLoginInfo from "../../common/CheckLoginInfo";
 import Header from "../../common/Header";
-import { Actions } from "../../reducers/actionns";
-import { AppState } from "../../reducers/store";
+import ShowLoginInfo from "../../common/ShowLoginInfo";
 
 const ShowMinogashiAnimeTop: React.FC = (()=>{
   const dispatch = useDispatch();
-  const loginInfo = useSelector((state: AppState) => { return state.state.loginInfo });
-
-  useEffect(() => {
-    console.log(loginInfo);
-    dispatch(Actions.updateTestValue(20));
-  }, []);
 
   return (
     <>
+      <CheckLoginInfo/>
       <Header
         isPrivate={true}
       />
-      test
+      <Grid container>
+        <Grid item xs={12}>
+          <ShowLoginInfo />
+        </Grid>
+      </Grid>
     </>
   )
 });

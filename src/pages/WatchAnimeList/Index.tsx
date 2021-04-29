@@ -11,6 +11,8 @@ import { GoogleOAuth, GoogleProfile } from "../../type/GoogleOAuth";
 import { useDispatch, useSelector } from "react-redux";
 import { Actions } from "../../reducers/actionns";
 import { AppState } from "../../reducers/store";
+import ShowLoginInfo from "../../common/ShowLoginInfo";
+import CheckLoginInfo from "../../common/CheckLoginInfo";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -52,14 +54,13 @@ export const rankList: Rank[] = [
 
 const WatchAnimeList: React.FC = (()=>{
   const dispatch = useDispatch();
-  const loginInfo = useSelector((state: AppState) => state.state.loginInfo );
+  const isShowPrivate = useSelector((state: AppState) => state.state.isShowPrivate );
   const [watchYear, setWatchYear] = useState<string>('2020');
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
   const [lowRate, setLowRate] = useState<number>(70);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
-  const [isPrivateMode, switchPrivateMode] = useState(false);
   const [GoogleOAuth, setGoogleOAuth] = useState<GoogleOAuth|null>(null);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
@@ -94,7 +95,7 @@ const WatchAnimeList: React.FC = (()=>{
     })
     // 0点以下を切り捨てる
     // PrivateModeでは全てを表示する
-    if(!isPrivateMode) {
+    if(!isShowPrivate) {
       reviewList = reviewList.filter((review: AnimeReview)=>{
         return review.rate > 0;
       })
@@ -126,43 +127,20 @@ const WatchAnimeList: React.FC = (()=>{
     )
   }
 
+  /** Gooleのログイン機能を使用した際に呼ばれる関数 */
   const responseGoogle = (response: any) => {
     setGoogleOAuth(response);
     dispatch(Actions.updateLoginInfo(response.profileObj));
     localStorage.setItem('googleProfile', JSON.stringify(response.profileObj));
     const isPrivate = response.profileObj.googleId === matchOwnerID;
-    switchPrivateMode(isPrivate);
+    dispatch(Actions.switchIsShowPrivate(isPrivate));
   }
-
-  const getLoginInfo = () => {
-    if(!loginInfo || loginInfo === null) {
-      return null;
-    }
-    return (
-      <>
-        <div><img src={loginInfo.imageUrl} width="32" height="32" /></div>
-        <div>あなたは{loginInfo.name}でログインをしています</div>
-        <div>{loginInfo.email}</div>
-        <div>GoogleID: {loginInfo.googleId}</div>
-      </>
-    )
-  }
-
-  useEffect(() => {
-    // LocalStorageからログイン情報を抽出する
-    const googleProfileStr: string | null = localStorage.getItem("googleProfile");
-    if(googleProfileStr) {
-      const googleProfile: GoogleProfile = JSON.parse(googleProfileStr);
-      dispatch(Actions.updateLoginInfo(googleProfile));
-      const isPrivate = googleProfile.googleId === matchOwnerID;
-      switchPrivateMode(isPrivate);
-    }
-  }, []);
 
   return (
     <>
+      <CheckLoginInfo/>
       <Header
-        isPrivate={isPrivateMode}
+        isPrivate={isShowPrivate}
       />
       <Grid container className={classes.main}>
         <Grid item xs={2} className={classes.title}>
@@ -185,7 +163,7 @@ const WatchAnimeList: React.FC = (()=>{
           </div>
         </Grid>
         <Grid item xs={12}>
-          {getLoginInfo()}
+          <ShowLoginInfo />
         </Grid>
         <Grid item xs={12} className={classes.inputSection}>
           <FilterWatchYear
@@ -210,7 +188,7 @@ const WatchAnimeList: React.FC = (()=>{
           {!loading &&
             <ShowAnimeReview
               reviewList={animeReviewList}
-              isPrivateMode={isPrivateMode}
+              isPrivateMode={isShowPrivate}
             />
           }
         </Grid>

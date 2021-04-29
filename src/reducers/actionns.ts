@@ -5,5 +5,6 @@ const actionCreator = actionCreatorFactory()
 
 export const Actions = {
     updateTestValue: actionCreator<number>('UPDATE_TEST_VALUE'),
-    updateLoginInfo: actionCreator<GoogleProfile>('UPDATE_LOGIN_INFO')
+    updateLoginInfo: actionCreator<GoogleProfile>('UPDATE_LOGIN_INFO'),
+    switchIsShowPrivate: actionCreator<boolean>('SWITCH_IS_SHOW_PRIVATE'),
 }
