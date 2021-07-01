@@ -48,10 +48,10 @@ export const rankList: Rank[] = [
 ];
 
 const WatchAnimeList: React.FC = (()=>{
-  const [watchYear, setWatchYear] = useState<string>('2020');
+  const [watchYear, setWatchYear] = useState<string>('2021');
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
-  const [lowRate, setLowRate] = useState<number>(70);
+  const [lowRate, setLowRate] = useState<number>(75);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
@@ -153,6 +153,8 @@ const WatchAnimeList: React.FC = (()=>{
       const isPrivate = googleProfile.googleId === matchOwnerID;
       switchPrivateMode(isPrivate);
     }
+    /** 初回アクセス時に名作だけ読み込む */
+    getRate();
   }, [])
 
   return (
