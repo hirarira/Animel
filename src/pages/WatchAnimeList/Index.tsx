@@ -55,10 +55,10 @@ export const rankList: Rank[] = [
 const WatchAnimeList: React.FC = (()=>{
   const dispatch = useDispatch();
   const isShowPrivate = useSelector((state: AppState) => state.state.isShowPrivate );
-  const [watchYear, setWatchYear] = useState<string>('2020');
+  const [watchYear, setWatchYear] = useState<string>('2021');
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
-  const [lowRate, setLowRate] = useState<number>(70);
+  const [lowRate, setLowRate] = useState<number>(75);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [GoogleOAuth, setGoogleOAuth] = useState<GoogleOAuth|null>(null);
@@ -135,6 +135,13 @@ const WatchAnimeList: React.FC = (()=>{
     const isPrivate = response.profileObj.googleId === matchOwnerID;
     dispatch(Actions.switchIsShowPrivate(isPrivate));
   }
+
+  /** 初回アクセス時に名作だけ読み込む */
+  useEffect(() => {
+    (async ()=>{
+      getRate();
+    })()
+  }, []);
 
   return (
     <>
