@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
@@ -45,6 +45,7 @@ export const rankList: Rank[] = [
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
   {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
+  {id: 12, rank: -4, name:"未評価", color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -72,8 +73,17 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   const formatReviewData = (reviewList: AnimeReview[]): AnimeReview[] => {
+    // 評価を定める
+    reviewList = reviewList.map((review: AnimeReview)=>{
+      const setRate = Number(review.rate? review.rate: -4);
+      return {
+        ...review,
+        rate: setRate,
+        rank: setRank(setRate)
+      }
+    })
     // 評価順に並び替える
-    reviewList.sort((a: AnimeReview, b: AnimeReview)=>{
+    reviewList = reviewList.sort((a: AnimeReview, b: AnimeReview)=>{
       if(a.rate > b.rate) {
         return -1;
       }
@@ -106,13 +116,6 @@ const WatchAnimeList: React.FC = (()=>{
         x.deviation = Math.round(x.deviation*100)/100;
       }
     });
-    // 評価を定める
-    reviewList = reviewList.map((review: AnimeReview)=>{
-      return {
-        ...review,
-        rank: setRank(Number(review.rate))
-      }
-    })
     return reviewList;
   }
 
@@ -127,6 +130,13 @@ const WatchAnimeList: React.FC = (()=>{
   const getRate = async () => {
     switchLoading(true);
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(highRate, lowRate);
+    setAnimeReviewList(formatReviewData(reviewList));
+    switchLoading(false);
+  }
+
+  const getAll = async () => {
+    switchLoading(true);
+    const reviewList: AnimeReview[] = await getAnimeReview.getAll();
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
   }
@@ -218,6 +228,16 @@ const WatchAnimeList: React.FC = (()=>{
             setHighRate={setHighRate}
             getRate={getRate}
           />
+          <Grid container justify="center" alignItems="center">
+            <Grid item xs={8}>
+              全てのアニメを取得する
+            </Grid>
+            <Grid item xs={4}>
+              <Button variant="contained" color="default" onClick={getAll}>
+                取得する
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={12}>
           {loading &&
