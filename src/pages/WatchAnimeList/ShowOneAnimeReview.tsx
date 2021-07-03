@@ -8,7 +8,8 @@ import { showMinogashiAnimeURL } from "./Index";
 interface Props {
   idx: number,
   review: AnimeReview,
-  isPrivateMode: boolean
+  isPrivateMode: boolean,
+  getAllFlag: boolean
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -54,6 +55,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
       return animeTitle;
     }
   }
+  const colSpan = props.getAllFlag? 8: 7;
   return (
     <>
       <TableRow style={{ backgroundColor: props.review.rank.color }}>
@@ -74,6 +76,11 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
           {props.review.rate}
         </TableCell>
         <Hidden xsDown>
+          {props.getAllFlag &&
+            <TableCell className={classes.cell}>
+              {props.review.deviation}
+            </TableCell>
+          }
           {/** 視聴時期 */}
           <TableCell className={`${classes.cell} ${classes.watchDateCell}`}>
             {props.review.watchDate}
@@ -89,7 +96,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         </Hidden>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.hiddenCell} colSpan={7}>
+        <TableCell className={classes.hiddenCell} colSpan={colSpan}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
             <TableContainer component={Paper}>
               <Table style={{ backgroundColor: props.review.rank.color, opacity: 0.8 }}>
@@ -119,6 +126,16 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
                     </TableCell>
                   </TableRow>
                   <Hidden mdUp>
+                    {props.getAllFlag &&
+                      <TableRow>
+                        <TableCell className={classes.cell}>
+                          偏差値
+                        </TableCell>
+                        <TableCell className={classes.comment}>
+                          {props.review.deviation}
+                        </TableCell>
+                      </TableRow>
+                    }
                     <TableRow>
                       <TableCell className={classes.cell}>
                         コメント

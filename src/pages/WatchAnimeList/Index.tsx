@@ -56,8 +56,11 @@ const WatchAnimeList: React.FC = (()=>{
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
+  // ログイン情報
   const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
+  // 全件取得中か
+  const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -125,6 +128,7 @@ const WatchAnimeList: React.FC = (()=>{
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
+    setGetAllFlag(false);
   }
 
   const getRate = async (high: number, low: number) => {
@@ -132,6 +136,7 @@ const WatchAnimeList: React.FC = (()=>{
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
+    setGetAllFlag(false);
   }
 
   const getAll = async () => {
@@ -139,6 +144,7 @@ const WatchAnimeList: React.FC = (()=>{
     const reviewList: AnimeReview[] = await getAnimeReview.getAll();
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
+    setGetAllFlag(true);
   }
 
   const getTitile = () => {
@@ -261,6 +267,7 @@ const WatchAnimeList: React.FC = (()=>{
             <ShowAnimeReview
               reviewList={animeReviewList}
               isPrivateMode={isPrivateMode}
+              getAllFlag={getAllFlag}
             />
           }
         </Grid>
