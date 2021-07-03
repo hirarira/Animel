@@ -74,6 +74,9 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
           {props.review.rate}
         </TableCell>
         <Hidden xsDown>
+          <TableCell className={classes.cell}>
+            {props.review.hoseiRate}
+          </TableCell>
           {/** 視聴時期 */}
           <TableCell className={`${classes.cell} ${classes.watchDateCell}`}>
             {props.review.watchDate}

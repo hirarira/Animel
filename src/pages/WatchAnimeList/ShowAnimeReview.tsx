@@ -33,6 +33,7 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <TableCell className={`${classes.cell} ${classes.rank}`}>RANK</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>評価</TableCell>
             <Hidden xsDown>
+              <TableCell className={`${classes.cell} ${classes.rank}`}>補正値</TableCell>
               <TableCell className={`${classes.cell} ${classes.rank}`}>視聴時期</TableCell>
             </Hidden>
             <TableCell className={`${classes.cell} ${classes.title}`}>タイトル</TableCell>

@@ -82,12 +82,6 @@ const WatchAnimeList: React.FC = (()=>{
       }
       return 0;
     })
-    reviewList = reviewList.map((review: AnimeReview)=>{
-      return {
-        ...review,
-        rank: setRank(Number(review.rate))
-      }
-    })
     // 0点以下を切り捨てる
     // PrivateModeでは全てを表示する
     if(!isPrivateMode) {
@@ -95,6 +89,45 @@ const WatchAnimeList: React.FC = (()=>{
         return review.rate > 0;
       })
     }
+    // 標準偏差を求める
+    // 1点以上のアニメの数を求める
+    const targetAnimeList = reviewList.filter((x)=>{ return x.rate > 0 });
+    const targetAnimeNum = targetAnimeList.length;
+    // 平均点を求める
+    const average = targetAnimeList.reduce((a, x) => { return a + x.rate }, 0)/targetAnimeNum;
+    // 偏差を求める
+    const deviationList = targetAnimeList.map((x)=>{ return Math.pow(x.rate - average, 2) });
+    // 標準偏差
+    const standardDeviation = Math.sqrt( deviationList.reduce((a, x) => { return a + x }, 0)/targetAnimeNum );
+    // 偏差値を求める
+    reviewList.map((x)=>{
+      if(x.rate > 0) {
+        x.deviation = (x.rate - average)/standardDeviation*10+50;
+        x.deviation = Math.round(x.deviation*100)/100;
+      }
+    });
+    // 補正値を求める
+    reviewList = reviewList.map((x)=>{
+      x.hoseiRate = (()=>{
+        if(x.rate > 80) {
+          return x.rate + 5;
+        }
+        else if(x.rate > 60) {
+          return x.rate*2-75
+        }
+        else {
+          return x.rate - 15;
+        }
+      })();
+      return x;
+    });
+    // 評価を定める
+    reviewList = reviewList.map((review: AnimeReview)=>{
+      return {
+        ...review,
+        rank: setRank(Number(review.rate))
+      }
+    })
     return reviewList;
   }
 
