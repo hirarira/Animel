@@ -45,7 +45,7 @@ export const rankList: Rank[] = [
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
   {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
-  {id: 12, rank: -4, name:"未評価", color: '#ffffff'},
+  {id: 12, rank: -4, name:"評価なし", color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -127,9 +127,9 @@ const WatchAnimeList: React.FC = (()=>{
     switchLoading(false);
   }
 
-  const getRate = async () => {
+  const getRate = async (high: number, low: number) => {
     switchLoading(true);
-    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(highRate, lowRate);
+    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
   }
@@ -182,7 +182,7 @@ const WatchAnimeList: React.FC = (()=>{
       switchPrivateMode(isPrivate);
     }
     /** 初回アクセス時に名作だけ読み込む */
-    getRate();
+    getRate(highRate, lowRate);
   }, [])
 
   return (
@@ -238,6 +238,20 @@ const WatchAnimeList: React.FC = (()=>{
               </Button>
             </Grid>
           </Grid>
+          { isPrivateMode &&
+            <Grid container justify="center" alignItems="center">
+              <Grid item xs={8}>
+                未評価アニメを取得する
+              </Grid>
+              <Grid item xs={4}>
+                <Button variant="contained" color="default" onClick={()=>{
+                  getRate(0, -10);
+                }}>
+                  取得する
+                </Button>
+              </Grid>
+            </Grid>
+          }
         </Grid>
         <Grid item xs={12}>
           {loading &&

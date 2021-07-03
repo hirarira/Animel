@@ -8,7 +8,7 @@ interface Props {
   highRate: number,
   setLowRate: React.Dispatch<React.SetStateAction<number>>,
   setHighRate: React.Dispatch<React.SetStateAction<number>>,
-  getRate: () => Promise<void>
+  getRate: (high: number, low: number) => Promise<void>
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -119,7 +119,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
           </Grid>
           <Grid item xs={4}>
             <Button variant="contained" color="primary" onClick={()=>{
-              props.getRate();
+              props.getRate(props.highRate, props.lowRate);
             }}>
               絞り込み
           </Button>
