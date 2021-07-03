@@ -106,21 +106,6 @@ const WatchAnimeList: React.FC = (()=>{
         x.deviation = Math.round(x.deviation*100)/100;
       }
     });
-    // 補正値を求める
-    reviewList = reviewList.map((x)=>{
-      x.hoseiRate = (()=>{
-        if(x.rate > 80) {
-          return x.rate + 5;
-        }
-        else if(x.rate > 60) {
-          return x.rate*2-75
-        }
-        else {
-          return x.rate - 15;
-        }
-      })();
-      return x;
-    });
     // 評価を定める
     reviewList = reviewList.map((review: AnimeReview)=>{
       return {

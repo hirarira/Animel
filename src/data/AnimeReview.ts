@@ -12,7 +12,6 @@ export interface AnimeReview {
   rank: Rank,
   // 偏差値
   deviation: number;
-  hoseiRate: number;
 }
 
 export interface Rank {
