@@ -61,7 +61,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
-              min={0}
+              min={20}
               max={100}
               value={props.highRate}
               step={5}
@@ -84,7 +84,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
-              min={0}
+              min={20}
               max={100}
               value={props.lowRate}
               step={5}
