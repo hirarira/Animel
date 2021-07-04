@@ -9,7 +9,9 @@ export interface AnimeReview {
   watchDate: string,
   rate: number,
   comment: string,
-  rank: Rank
+  rank: Rank,
+  // 偏差値
+  deviation: number;
 }
 
 export interface Rank {

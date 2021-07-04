@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
@@ -45,6 +45,7 @@ export const rankList: Rank[] = [
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
   {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
+  {id: 12, rank: -4, name:"評価なし", color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -55,8 +56,11 @@ const WatchAnimeList: React.FC = (()=>{
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
   const [isPrivateMode, switchPrivateMode] = useState(false);
+  // ログイン情報
   const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
+  // 全件取得中か
+  const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -72,8 +76,17 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   const formatReviewData = (reviewList: AnimeReview[]): AnimeReview[] => {
+    // 評価を定める
+    reviewList = reviewList.map((review: AnimeReview)=>{
+      const setRate = Number(review.rate? review.rate: -4);
+      return {
+        ...review,
+        rate: setRate,
+        rank: setRank(setRate)
+      }
+    })
     // 評価順に並び替える
-    reviewList.sort((a: AnimeReview, b: AnimeReview)=>{
+    reviewList = reviewList.sort((a: AnimeReview, b: AnimeReview)=>{
       if(a.rate > b.rate) {
         return -1;
       }
@@ -82,12 +95,6 @@ const WatchAnimeList: React.FC = (()=>{
       }
       return 0;
     })
-    reviewList = reviewList.map((review: AnimeReview)=>{
-      return {
-        ...review,
-        rank: setRank(Number(review.rate))
-      }
-    })
     // 0点以下を切り捨てる
     // PrivateModeでは全てを表示する
     if(!isPrivateMode) {
@@ -95,6 +102,23 @@ const WatchAnimeList: React.FC = (()=>{
         return review.rate > 0;
       })
     }
+    // 標準偏差を求める
+    // 1点以上のアニメの数を求める
+    const targetAnimeList = reviewList.filter((x)=>{ return x.rate > 0 });
+    const targetAnimeNum = targetAnimeList.length;
+    // 平均点を求める
+    const average = targetAnimeList.reduce((a, x) => { return a + x.rate }, 0)/targetAnimeNum;
+    // 偏差を求める
+    const deviationList = targetAnimeList.map((x)=>{ return Math.pow(x.rate - average, 2) });
+    // 標準偏差
+    const standardDeviation = Math.sqrt( deviationList.reduce((a, x) => { return a + x }, 0)/targetAnimeNum );
+    // 偏差値を求める
+    reviewList.map((x)=>{
+      if(x.rate > 0) {
+        x.deviation = (x.rate - average)/standardDeviation*10+50;
+        x.deviation = Math.round(x.deviation*100)/100;
+      }
+    });
     return reviewList;
   }
 
@@ -104,13 +128,23 @@ const WatchAnimeList: React.FC = (()=>{
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
+    setGetAllFlag(false);
   }
 
-  const getRate = async () => {
+  const getRate = async (high: number, low: number) => {
     switchLoading(true);
-    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(highRate, lowRate);
+    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
     setAnimeReviewList(formatReviewData(reviewList));
     switchLoading(false);
+    setGetAllFlag(false);
+  }
+
+  const getAll = async () => {
+    switchLoading(true);
+    const reviewList: AnimeReview[] = await getAnimeReview.getAll();
+    setAnimeReviewList(formatReviewData(reviewList));
+    switchLoading(false);
+    setGetAllFlag(true);
   }
 
   const getTitile = () => {
@@ -154,7 +188,7 @@ const WatchAnimeList: React.FC = (()=>{
       switchPrivateMode(isPrivate);
     }
     /** 初回アクセス時に名作だけ読み込む */
-    getRate();
+    getRate(highRate, lowRate);
   }, [])
 
   return (
@@ -200,6 +234,30 @@ const WatchAnimeList: React.FC = (()=>{
             setHighRate={setHighRate}
             getRate={getRate}
           />
+          <Grid container justify="center" alignItems="center">
+            <Grid item xs={8}>
+              全てのアニメを取得する
+            </Grid>
+            <Grid item xs={4}>
+              <Button variant="contained" color="default" onClick={getAll}>
+                取得する
+              </Button>
+            </Grid>
+          </Grid>
+          { isPrivateMode &&
+            <Grid container justify="center" alignItems="center">
+              <Grid item xs={8}>
+                未評価アニメを取得する
+              </Grid>
+              <Grid item xs={4}>
+                <Button variant="contained" color="default" onClick={()=>{
+                  getRate(0, -10);
+                }}>
+                  取得する
+                </Button>
+              </Grid>
+            </Grid>
+          }
         </Grid>
         <Grid item xs={12}>
           {loading &&
@@ -209,6 +267,7 @@ const WatchAnimeList: React.FC = (()=>{
             <ShowAnimeReview
               reviewList={animeReviewList}
               isPrivateMode={isPrivateMode}
+              getAllFlag={getAllFlag}
             />
           }
         </Grid>

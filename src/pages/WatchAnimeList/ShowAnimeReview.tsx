@@ -5,7 +5,8 @@ import ShowOneAnimeReview from "./ShowOneAnimeReview";
 
 interface Props {
   reviewList: AnimeReview[],
-  isPrivateMode: boolean
+  isPrivateMode: boolean,
+  getAllFlag: boolean
 }
 
 const useStyles = makeStyles((theme) => ({
@@ -33,6 +34,9 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <TableCell className={`${classes.cell} ${classes.rank}`}>RANK</TableCell>
             <TableCell className={`${classes.cell} ${classes.rank}`}>評価</TableCell>
             <Hidden xsDown>
+              {props.getAllFlag &&
+                <TableCell className={`${classes.cell} ${classes.rank}`}>偏差値</TableCell>
+              }
               <TableCell className={`${classes.cell} ${classes.rank}`}>視聴時期</TableCell>
             </Hidden>
             <TableCell className={`${classes.cell} ${classes.title}`}>タイトル</TableCell>
@@ -49,6 +53,7 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
                 idx={idx}
                 review={review}
                 isPrivateMode={props.isPrivateMode}
+                getAllFlag={props.getAllFlag}
               />
             )
           })}
