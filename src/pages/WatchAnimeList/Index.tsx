@@ -45,7 +45,7 @@ export const rankList: Rank[] = [
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
   {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
-  {id: 12, rank: -4, name:"評価なし", color: '#ffffff'},
+  {id: 12, rank: -4, name:"未評価",   color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -95,11 +95,12 @@ const WatchAnimeList: React.FC = (()=>{
       }
       return 0;
     })
+    console.log(reviewList);
     // 0点以下を切り捨てる
     // PrivateModeでは全てを表示する
     if(!isPrivateMode) {
       reviewList = reviewList.filter((review: AnimeReview)=>{
-        return review.rate > 0;
+        return review.rate > 0 || review.rate === -4;
       })
     }
     // 標準偏差を求める
