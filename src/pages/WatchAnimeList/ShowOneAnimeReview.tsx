@@ -125,7 +125,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
                       <a href={shoboiURL}>{shoboiURL}</a>
                     </TableCell>
                   </TableRow>
-                  <Hidden mdUp>
+                  <Hidden lgUp>
                     {props.getAllFlag &&
                       <TableRow>
                         <TableCell className={classes.cell}>
