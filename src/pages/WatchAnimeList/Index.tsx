@@ -8,6 +8,7 @@ import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
 import GoogleLogin from 'react-google-login';
 import { GoogleOAuth, GoogleProfile } from "../../type/GoogleOAuth";
+import { useLocation } from "react-router-dom";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
@@ -45,10 +46,11 @@ export const rankList: Rank[] = [
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
   {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
-  {id: 12, rank: -4, name:"評価なし", color: '#ffffff'},
+  {id: 12, rank: -4, name:"未評価",   color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
+  const location = useLocation()
   const [watchYear, setWatchYear] = useState<string>('2021');
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
@@ -61,6 +63,7 @@ const WatchAnimeList: React.FC = (()=>{
   const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
   // 全件取得中か
   const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
+  const [params, setParams] = useState<URLSearchParams|undefined>(undefined);
   const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
@@ -99,7 +102,7 @@ const WatchAnimeList: React.FC = (()=>{
     // PrivateModeでは全てを表示する
     if(!isPrivateMode) {
       reviewList = reviewList.filter((review: AnimeReview)=>{
-        return review.rate > 0;
+        return review.rate > 0 || review.rate === -4;
       })
     }
     // 標準偏差を求める
@@ -122,8 +125,8 @@ const WatchAnimeList: React.FC = (()=>{
     return reviewList;
   }
 
-  const getWatchDate = async () => {
-    const path = `${watchYear}年${watchSeason}`;
+  const getWatchDate = async (year: string = watchYear, season: string = watchSeason) => {
+    const path = `${year}年${season}`;
     switchLoading(true);
     const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
     setAnimeReviewList(formatReviewData(reviewList));
@@ -187,8 +190,21 @@ const WatchAnimeList: React.FC = (()=>{
       const isPrivate = googleProfile.googleId === matchOwnerID;
       switchPrivateMode(isPrivate);
     }
-    /** 初回アクセス時に名作だけ読み込む */
-    getRate(highRate, lowRate);
+    const tmpParams = new URLSearchParams(location.search);
+    const year = tmpParams.get('year');
+    const season = tmpParams.get('season');
+    if(year !== null && season !== null) {
+      setWatchYear(year);
+      setWatchSeason(season);
+      getWatchDate(year, season);
+      console.log("aaaaa");
+    }
+    else {
+      /** 初回アクセス時に名作だけ読み込む */
+      getRate(highRate, lowRate);
+    }
+    /** クエリパラメータを保持しておく */
+    setParams(tmpParams);
   }, [])
 
   return (
