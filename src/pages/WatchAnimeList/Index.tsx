@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, CircularProgress, Grid, makeStyles } from '@mui/material';
+import { Button, CircularProgress, Grid, Card, CardContent } from '@mui/material';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
@@ -28,6 +28,11 @@ const styles = {
     boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
     padding: '10px',
     margin: '10px'
+  },
+  card: {
+    margin: '10px',
+    padding: '5px',
+    background: '#f0f8ff'
   }
 }
 
@@ -238,45 +243,65 @@ const WatchAnimeList: React.FC = (()=>{
           {getLoginInfo()}
         </Grid>
         <Grid item xs={12} style={styles.inputSection}>
-          <FilterWatchYear
-            watchYear={watchYear}
-            watchSeason={watchSeason}
-            setWatchYear={setWatchYear}
-            setWatchSeason={setWatchSeason}
-            getWatchDate={getWatchDate}
-          />
-          <FilterRate
-            lowRate={lowRate}
-            highRate={highRate}
-            setLowRate={setLowRate}
-            setHighRate={setHighRate}
-            getRate={getRate}
-          />
-          <Grid container justifyContent="center" alignItems="center">
-            <Grid item xs={8}>
-              全てのアニメを取得する
-            </Grid>
-            <Grid item xs={4}>
-              <Button variant="contained" color="primary" onClick={getAll}>
-                取得する
-              </Button>
-            </Grid>
-          </Grid>
+          <Card style={styles.card}>
+            <CardContent>
+              <FilterWatchYear
+                watchYear={watchYear}
+                watchSeason={watchSeason}
+                setWatchYear={setWatchYear}
+                setWatchSeason={setWatchSeason}
+                getWatchDate={getWatchDate}
+              />
+            </CardContent>
+          </Card>
+
+          <Card style={styles.card}>
+            <CardContent>
+              <FilterRate
+                lowRate={lowRate}
+                highRate={highRate}
+                setLowRate={setLowRate}
+                setHighRate={setHighRate}
+                getRate={getRate}
+              />
+            </CardContent>
+          </Card>
+          
+          <Card style={styles.card}>
+            <CardContent>
+              <Grid container justifyContent="center" alignItems="center">
+                <Grid item xs={8}>
+                  全てのアニメを取得する
+                </Grid>
+                <Grid item xs={4}>
+                  <Button variant="contained" color="primary" onClick={getAll}>
+                    取得する
+                  </Button>
+                </Grid>
+              </Grid>
+            </CardContent>
+          </Card>
+
           { isPrivateMode &&
-            <Grid container justifyContent="center" alignItems="center">
-              <Grid item xs={8}>
-                未評価アニメを取得する
-              </Grid>
-              <Grid item xs={4}>
-                <Button variant="contained" color="primary" onClick={()=>{
-                  getRate(0, -10);
-                }}>
-                  取得する
-                </Button>
-              </Grid>
-            </Grid>
+            <Card style={styles.card}>
+              <CardContent>
+                <Grid container justifyContent="center" alignItems="center">
+                  <Grid item xs={8}>
+                    未評価アニメを取得する
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Button variant="contained" color="primary" onClick={()=>{
+                      getRate(0, -10);
+                    }}>
+                      取得する
+                    </Button>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
           }
         </Grid>
+
         <Grid item xs={12}>
           {loading &&
             <CircularProgress />
