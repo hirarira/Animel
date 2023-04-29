@@ -1,8 +1,8 @@
 import React, { useState } from "react";
-import { Button, Collapse, Grid, Hidden, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@material-ui/core';
+import { Button, Collapse, Grid, Hidden, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { AnimeReview } from "../../data/AnimeReview";
-import KeyboardArrowDownIcon from '@material-ui/icons/KeyboardArrowDown';
-import KeyboardArrowUpIcon from '@material-ui/icons/KeyboardArrowUp';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
 import { showMinogashiAnimeURL } from "./Index";
 
 interface Props {
@@ -12,13 +12,10 @@ interface Props {
   getAllFlag: boolean
 }
 
-const useStyles = makeStyles((theme) => ({
+const style = {
   cell: {
     padding: '8px',
     fontSize: '14px'
-  },
-  button: {
-    padding: '4px'
   },
   hiddenCell: {
     padding: '0px',
@@ -29,18 +26,23 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 'min(3vw ,16px)'
   },
   rank: {
+    padding: '8px',
+    fontSize: '14px',
     width: '40px'
   },
   leftCell: {
+    padding: '8px',
+    fontSize: '14px',
     width: '60px'
   },
   watchDateCell: {
+    padding: '8px',
+    fontSize: '14px',
     width: '80px'
   }
-}));
+};
 
 const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
-  const classes = useStyles();
   const [showDetail, switchShowDetail] = useState<boolean>(false);
   const shoboiURL = `https://cal.syoboi.jp/tid/${props.review.tid}`;
   const setAnimeTitle = () => {
@@ -59,7 +61,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
   return (
     <>
       <TableRow style={{ backgroundColor: props.review.rank.color }}>
-        <TableCell className={`${classes.cell} ${classes.rank}`}>
+        <TableCell style={style.rank}>
           <IconButton 
             aria-label="expand row"
             size="small"
@@ -68,79 +70,79 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
             { showDetail ? <KeyboardArrowUpIcon /> : <KeyboardArrowDownIcon /> }
           </IconButton>
         </TableCell>
-        <TableCell className={`${classes.cell} ${classes.rank}`}>{props.idx+1}</TableCell>
-        <TableCell className={classes.cell}>
+        <TableCell style={style.rank}>{props.idx+1}</TableCell>
+        <TableCell style={style.cell}>
           {props.review.rank.name}
         </TableCell>
-        <TableCell className={classes.cell}>
+        <TableCell style={style.cell}>
           {props.review.rate}
         </TableCell>
         <Hidden xsDown>
           {props.getAllFlag &&
-            <TableCell className={classes.cell}>
+            <TableCell style={style.cell}>
               {props.review.deviation}
             </TableCell>
           }
           {/** 視聴時期 */}
-          <TableCell className={`${classes.cell} ${classes.watchDateCell}`}>
+          <TableCell style={style.watchDateCell}>
             {props.review.watchDate}
           </TableCell>
         </Hidden>
-        <TableCell className={classes.cell}>
+        <TableCell style={style.cell}>
           {setAnimeTitle()}
         </TableCell>
         <Hidden mdDown>
-          <TableCell className={`${classes.cell}`}>
+          <TableCell style={style.cell}>
             {props.review.comment}
           </TableCell>
         </Hidden>
       </TableRow>
       <TableRow>
-        <TableCell className={classes.hiddenCell} colSpan={colSpan}>
+        <TableCell style={style.hiddenCell} colSpan={colSpan}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
             <TableContainer component={Paper}>
               <Table style={{ backgroundColor: props.review.rank.color, opacity: 0.8 }}>
                 <TableBody>
                   <TableRow>
-                    <TableCell className={`${classes.cell} ${classes.leftCell}`}>
+                    <TableCell style={style.leftCell}>
                       視聴年度
                     </TableCell>
-                    <TableCell className={classes.cell}>
+                    <TableCell style={style.cell}>
                       {props.review.watchDate}
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className={classes.cell}>
+                    <TableCell style={style.cell}>
                     公式URL
                     </TableCell>
-                    <TableCell className={classes.cell}>
+                    <TableCell style={style.cell}>
                       <a href={props.review.publicURL}>{props.review.publicURL}</a>
                     </TableCell>
                   </TableRow>
                   <TableRow>
-                    <TableCell className={classes.cell}>
+                    <TableCell style={style.cell}>
                       しょぼいカレンダーURL
                     </TableCell>
-                    <TableCell className={classes.cell}>
+                    <TableCell style={style.cell}>
                       <a href={shoboiURL}>{shoboiURL}</a>
                     </TableCell>
                   </TableRow>
                   <Hidden lgUp>
                     {props.getAllFlag &&
                       <TableRow>
-                        <TableCell className={classes.cell}>
+                        <TableCell style={style.cell}>
                           偏差値
                         </TableCell>
-                        <TableCell className={classes.comment}>
+                        <TableCell style={style.comment}>
                           {props.review.deviation}
                         </TableCell>
                       </TableRow>
                     }
                     <TableRow>
-                      <TableCell className={classes.cell}>
+                      <TableCell style={style.cell}>
                         コメント
                       </TableCell>
-                      <TableCell className={classes.comment}>
+                      <TableCell style={style.comment}>
                         {props.review.comment}
                       </TableCell>
                     </TableRow>

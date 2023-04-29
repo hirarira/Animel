@@ -8,8 +8,11 @@ on:
       - master
 jobs:
   deploy:
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-latest
     timeout-minutes: 10
+    strategy:
+      matrix:
+        node-version: [16.x]
     steps:
       # Checkout Branch
       - uses: actions/checkout@v2

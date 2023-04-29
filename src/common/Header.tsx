@@ -1,6 +1,6 @@
 import React from "react";
-import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
 import { showMinogashiAnimeURL } from "../pages/WatchAnimeList/Index";
 
 interface Props {
