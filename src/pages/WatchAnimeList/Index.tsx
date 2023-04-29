@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, CircularProgress, Grid, makeStyles } from '@material-ui/core';
+import { Button, CircularProgress, Grid, makeStyles } from '@mui/material';
 import Header from "../../common/Header";
 import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
@@ -12,7 +12,7 @@ import { useLocation } from "react-router-dom";
 
 export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
-const useStyles = makeStyles((theme) => ({
+const styles = {
   main: {
     margin: '10px',
     width: 'calc(100% - 20px)'
@@ -28,8 +28,8 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
     padding: '10px',
     margin: '10px'
-  },
-}));
+  }
+}
 
 export const rankList: Rank[] = [
   {id: 0,  rank: 90, name:"神作",     color: '#b1dfbb'},
@@ -66,7 +66,7 @@ const WatchAnimeList: React.FC = (()=>{
   // 全件取得中か
   const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
   const [params, setParams] = useState<URLSearchParams|undefined>(undefined);
-  const classes = useStyles();
+  // const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
   const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
   const matchOwnerID = process.env.REACT_APP_ALLOW_GOOGLE_ID;
@@ -214,13 +214,13 @@ const WatchAnimeList: React.FC = (()=>{
       <Header
         isPrivate={isPrivateMode}
       />
-      <Grid container className={classes.main}>
-        <Grid item xs={2} className={classes.title}>
+      <Grid container style={styles.main}>
+        <Grid item xs={2} style={styles.title}>
         </Grid>
-        <Grid item xs={8} className={classes.title}>
+        <Grid item xs={8} style={styles.title}>
           {getTitile()}
         </Grid>
-        <Grid item xs={2} className={classes.title}>
+        <Grid item xs={2} style={styles.title}>
           <div>
             管理用Login
           </div>
@@ -237,7 +237,7 @@ const WatchAnimeList: React.FC = (()=>{
         <Grid item xs={12}>
           {getLoginInfo()}
         </Grid>
-        <Grid item xs={12} className={classes.inputSection}>
+        <Grid item xs={12} style={styles.inputSection}>
           <FilterWatchYear
             watchYear={watchYear}
             watchSeason={watchSeason}
@@ -252,23 +252,23 @@ const WatchAnimeList: React.FC = (()=>{
             setHighRate={setHighRate}
             getRate={getRate}
           />
-          <Grid container justify="center" alignItems="center">
+          <Grid container justifyContent="center" alignItems="center">
             <Grid item xs={8}>
               全てのアニメを取得する
             </Grid>
             <Grid item xs={4}>
-              <Button variant="contained" color="default" onClick={getAll}>
+              <Button variant="contained" color="primary" onClick={getAll}>
                 取得する
               </Button>
             </Grid>
           </Grid>
           { isPrivateMode &&
-            <Grid container justify="center" alignItems="center">
+            <Grid container justifyContent="center" alignItems="center">
               <Grid item xs={8}>
                 未評価アニメを取得する
               </Grid>
               <Grid item xs={4}>
-                <Button variant="contained" color="default" onClick={()=>{
+                <Button variant="contained" color="primary" onClick={()=>{
                   getRate(0, -10);
                 }}>
                   取得する

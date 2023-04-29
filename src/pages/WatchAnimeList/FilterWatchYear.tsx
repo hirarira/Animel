@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select } from '@material-ui/core';
+import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select } from '@mui/material';
 
 interface Props {
   watchYear: string,
@@ -9,7 +9,7 @@ interface Props {
   getWatchDate: () => Promise<void>
 }
 
-const useStyles = makeStyles((theme) => ({
+const style = {
   section: {
     marginBottom: '10px'
   },
@@ -19,11 +19,10 @@ const useStyles = makeStyles((theme) => ({
   inputSeason: {
     width: '50px'
   }
-}));
+};
 
 const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
   const [showInput, switchShowInput] = useState<boolean>(true);
-  const classes = useStyles();
   const handleChangeYear = (event: any) => {
     props.setWatchYear(event.target.value);
   }
@@ -37,12 +36,12 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
   const seasonList = ['', '冬', '春', '夏', '秋'];
 
   return (
-    <Grid container justify="center" alignItems="center" className={classes.section}>
+    <Grid container justifyContent="center" alignItems="center" style={style.section}>
       <Grid item xs={8}>
         視聴年度から絞り込み
       </Grid>
       <Grid item xs={4}>
-        <Button variant="contained" color="default" onClick={()=>{
+        <Button variant="contained" color="primary" onClick={()=>{
           switchShowInput(!showInput);
         }}>
           {showInput? '隠す': '表示'}
@@ -51,7 +50,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
       { showInput &&
         <>
         <Grid item xs={4}>
-          <FormControl className={classes.input}>
+          <FormControl style={style.input}>
             <InputLabel shrink id="demo-simple-select-label">視聴年</InputLabel>
             <Select
               value={props.watchYear}
@@ -66,7 +65,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
           </FormControl>
         </Grid>
         <Grid item xs={4}>
-          <FormControl className={classes.inputSeason}>
+          <FormControl style={style.inputSeason}>
             <InputLabel shrink id="demo-simple-select-label">季節</InputLabel>
             <Select
               value={props.watchSeason}

@@ -4,8 +4,8 @@
   "private": true,
   "homepage": "/Animel",
   "dependencies": {
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
+    "@emotion/react": "^11.10.8",
+    "@emotion/styled": "^11.10.8",
     "@mui/core": "^5.0.0-alpha.54",
     "@mui/icons-material": "^5.11.16",
     "@testing-library/jest-dom": "^5.11.9",

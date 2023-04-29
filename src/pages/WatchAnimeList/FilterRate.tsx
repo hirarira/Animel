@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, Slider, Typography } from '@material-ui/core';
+import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, Slider, Typography } from '@mui/material';
 import { rankList } from "./Index";
 import { Rank } from "../../data/AnimeReview";
 
@@ -11,7 +11,7 @@ interface Props {
   getRate: (high: number, low: number) => Promise<void>
 }
 
-const useStyles = makeStyles((theme) => ({
+const style = {
   input: {
     width: "calc(100% - 40px)",
     marginLeft: '20px',
@@ -20,12 +20,11 @@ const useStyles = makeStyles((theme) => ({
   selectRank: {
     width: "120px"
   }
-}));
+};
 
 const FilterRate: React.FC<Props> = ((props: Props)=>{
   const [showInput, switchShowInput] = useState<boolean>(true);
   const [selectRank, switchSelectRank] = useState(0);
-  const classes = useStyles();
 
   const selectSetRank = (e: any) => {
     const value = e.target.value;
@@ -39,12 +38,12 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
   }
 
   return (
-    <Grid container justify="center" alignItems="center">
+    <Grid container justifyContent="center" alignItems="center">
       <Grid item xs={8}>
       評価から絞り込み
       </Grid>
       <Grid item xs={4}>
-        <Button variant="contained" color="default" onClick={()=>{
+        <Button variant="contained" color="primary" onClick={()=>{
           switchShowInput(!showInput);
         }}>
           {showInput? '隠す': '表示'}
@@ -72,7 +71,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
                   props.setLowRate(setValue);
                 }
               }}
-              className={classes.input}
+              style={style.input}
             />
           </Grid>
           <Grid item xs={5}>
@@ -95,11 +94,11 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
                   props.setHighRate(setValue);
                 }
               }}
-              className={classes.input}
+              style={style.input}
             />
           </Grid>
           <Grid item xs={8}>
-            <FormControl className={classes.selectRank}>
+            <FormControl style={style.selectRank}>
               <InputLabel id="demo-simple-select-label">ランクより選択</InputLabel>
               <Select
                 labelId="selectRank"
