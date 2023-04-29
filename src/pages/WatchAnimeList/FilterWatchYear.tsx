@@ -31,7 +31,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
     props.setWatchSeason(event.target.value);
   }
   const startYear = 2010;
-  const endYear = 2022;
+  const endYear = 2023;
   const yearNum = endYear-startYear+1;
   const yearList = [...Array(yearNum)].map((a,x)=>{return startYear+x;});
   const seasonList = ['', '冬', '春', '夏', '秋'];

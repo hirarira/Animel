@@ -50,8 +50,10 @@ export const rankList: Rank[] = [
 ];
 
 const WatchAnimeList: React.FC = (()=>{
-  const location = useLocation()
-  const [watchYear, setWatchYear] = useState<string>('2021');
+  const location = useLocation();
+  // デフォルト表示年月
+  const defaultYear = '2022';
+  const [watchYear, setWatchYear] = useState<string>(defaultYear);
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
   const [lowRate, setLowRate] = useState<number>(75);
