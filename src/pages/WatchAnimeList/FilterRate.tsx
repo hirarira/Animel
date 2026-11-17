@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select, Slider, Typography } from '@mui/material';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select, Slider, Typography } from '@mui/material';
 import { rankList } from "./Index";
 import { Rank } from "../../data/AnimeReview";
 
@@ -38,11 +38,11 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
   }
 
   return (
-    <Grid container justifyContent="center" alignItems="center">
-      <Grid item xs={8}>
+    <Grid container sx={{ justifyContent: "center", alignItems: "center" }}>
+      <Grid size={8}>
       評価から絞り込み
       </Grid>
-      <Grid item xs={4}>
+      <Grid size={4}>
         <Button variant="contained" color="primary" onClick={()=>{
           switchShowInput(!showInput);
         }}>
@@ -51,12 +51,12 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
       </Grid>
       { showInput &&
         <>
-          <Grid item xs={5}>
+          <Grid size={5}>
             <Typography gutterBottom>
               上限評価：{props.highRate}
             </Typography>
           </Grid>
-          <Grid item xs={7}>
+          <Grid size={7}>
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
@@ -74,12 +74,12 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               style={style.input}
             />
           </Grid>
-          <Grid item xs={5}>
+          <Grid size={5}>
             <Typography gutterBottom>
               下限評価：{props.lowRate}
             </Typography>
           </Grid>
-          <Grid item xs={7}>
+          <Grid size={7}>
             <Slider
               aria-labelledby="continuous-slider"
               valueLabelDisplay="auto"
@@ -97,7 +97,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               style={style.input}
             />
           </Grid>
-          <Grid item xs={8}>
+          <Grid size={8}>
             <FormControl style={style.selectRank}>
               <InputLabel id="demo-simple-select-label">ランクより選択</InputLabel>
               <Select
@@ -116,7 +116,7 @@ const FilterRate: React.FC<Props> = ((props: Props)=>{
               </Select>
             </FormControl>
           </Grid>
-          <Grid item xs={4}>
+          <Grid size={4}>
             <Button variant="contained" color="primary" onClick={()=>{
               props.getRate(props.highRate, props.lowRate);
             }}>

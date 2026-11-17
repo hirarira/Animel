@@ -1,14 +1,12 @@
 import React, { useState } from "react";
-import { Button, Collapse, Grid, Hidden, IconButton, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import { Collapse, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { AnimeReview } from "../../data/AnimeReview";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
-import { showMinogashiAnimeURL } from "./Index";
 
 interface Props {
   idx: number,
   review: AnimeReview,
-  isPrivateMode: boolean,
   getAllFlag: boolean
 }
 
@@ -42,27 +40,20 @@ const style = {
   }
 };
 
+// 旧 Hidden の置き換え（MUI v7以降で Hidden は削除された）
+const hideBelowSm = { display: { xs: 'none', sm: 'table-cell' } } as const;
+const hideBelowLg = { display: { xs: 'none', lg: 'table-cell' } } as const;
+const showBelowLgRow = { display: { xs: 'table-row', lg: 'none' } } as const;
+
 const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
   const [showDetail, switchShowDetail] = useState<boolean>(false);
   const shoboiURL = `https://cal.syoboi.jp/tid/${props.review.tid}`;
-  const setAnimeTitle = () => {
-    const animeTitle = props.review.title;
-    if(props.isPrivateMode) {
-      const url = `${showMinogashiAnimeURL}showAnimeStoryList.html?tid=${props.review.tid}`;
-      return (
-        <a href={url}>{animeTitle}</a>
-      )
-    }
-    else {
-      return animeTitle;
-    }
-  }
   const colSpan = props.getAllFlag? 8: 7;
   return (
     <>
       <TableRow style={{ backgroundColor: props.review.rank.color }}>
         <TableCell style={style.rank}>
-          <IconButton 
+          <IconButton
             aria-label="expand row"
             size="small"
             onClick={() => switchShowDetail(!showDetail) }
@@ -77,25 +68,21 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         <TableCell style={style.cell}>
           {props.review.rate}
         </TableCell>
-        <Hidden xsDown>
-          {props.getAllFlag &&
-            <TableCell style={style.cell}>
-              {props.review.deviation}
-            </TableCell>
-          }
-          {/** 視聴時期 */}
-          <TableCell style={style.watchDateCell}>
-            {props.review.watchDate}
+        {props.getAllFlag &&
+          <TableCell style={style.cell} sx={hideBelowSm}>
+            {props.review.deviation}
           </TableCell>
-        </Hidden>
-        <TableCell style={style.cell}>
-          {setAnimeTitle()}
+        }
+        {/** 視聴時期 */}
+        <TableCell style={style.watchDateCell} sx={hideBelowSm}>
+          {props.review.watchDate}
         </TableCell>
-        <Hidden mdDown>
-          <TableCell style={style.cell}>
-            {props.review.comment}
-          </TableCell>
-        </Hidden>
+        <TableCell style={style.cell}>
+          {props.review.title}
+        </TableCell>
+        <TableCell style={style.cell} sx={hideBelowLg}>
+          {props.review.comment}
+        </TableCell>
       </TableRow>
       <TableRow>
         <TableCell style={style.hiddenCell} colSpan={colSpan}>
@@ -127,26 +114,24 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
                       <a href={shoboiURL}>{shoboiURL}</a>
                     </TableCell>
                   </TableRow>
-                  <Hidden lgUp>
-                    {props.getAllFlag &&
-                      <TableRow>
-                        <TableCell style={style.cell}>
-                          偏差値
-                        </TableCell>
-                        <TableCell style={style.comment}>
-                          {props.review.deviation}
-                        </TableCell>
-                      </TableRow>
-                    }
-                    <TableRow>
+                  {props.getAllFlag &&
+                    <TableRow sx={showBelowLgRow}>
                       <TableCell style={style.cell}>
-                        コメント
+                        偏差値
                       </TableCell>
                       <TableCell style={style.comment}>
-                        {props.review.comment}
+                        {props.review.deviation}
                       </TableCell>
                     </TableRow>
-                  </Hidden>
+                  }
+                  <TableRow sx={showBelowLgRow}>
+                    <TableCell style={style.cell}>
+                      コメント
+                    </TableCell>
+                    <TableCell style={style.comment}>
+                      {props.review.comment}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
              </TableContainer>

@@ -1,11 +1,10 @@
-import React, { useState } from "react";
-import { Grid, Hidden, makeStyles, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
+import React from "react";
+import { Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow } from '@mui/material';
 import { AnimeReview } from "../../data/AnimeReview";
 import ShowOneAnimeReview from "./ShowOneAnimeReview";
 
 interface Props {
   reviewList: AnimeReview[],
-  isPrivateMode: boolean,
   getAllFlag: boolean
 }
 
@@ -26,6 +25,11 @@ const style = {
   }
 };
 
+// 旧 Hidden の置き換え（MUI v7以降で Hidden は削除された）
+// xsDown: sm未満で非表示 / mdDown相当: lg未満で非表示
+const hideBelowSm = { display: { xs: 'none', sm: 'table-cell' } } as const;
+const hideBelowLg = { display: { xs: 'none', lg: 'table-cell' } } as const;
+
 const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
   return (
     <TableContainer component={Paper}>
@@ -36,16 +40,12 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
             <TableCell style={style.rank}>順位</TableCell>
             <TableCell style={style.rank}>RANK</TableCell>
             <TableCell style={style.rank}>評価</TableCell>
-            <Hidden xsDown>
-              {props.getAllFlag &&
-                <TableCell style={style.rank}>偏差値</TableCell>
-              }
-              <TableCell style={style.rank}>視聴時期</TableCell>
-            </Hidden>
+            {props.getAllFlag &&
+              <TableCell style={style.rank} sx={hideBelowSm}>偏差値</TableCell>
+            }
+            <TableCell style={style.rank} sx={hideBelowSm}>視聴時期</TableCell>
             <TableCell style={style.title}>タイトル</TableCell>
-            <Hidden mdDown>
-              <TableCell style={style.cell}>コメント</TableCell>
-            </Hidden>
+            <TableCell style={style.cell} sx={hideBelowLg}>コメント</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -55,7 +55,6 @@ const ShowAnimeReview: React.FC<Props> = ((props: Props)=>{
                 key={idx}
                 idx={idx}
                 review={review}
-                isPrivateMode={props.isPrivateMode}
                 getAllFlag={props.getAllFlag}
               />
             )
