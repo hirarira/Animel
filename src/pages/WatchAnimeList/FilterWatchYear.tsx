@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, FormControl, Grid, InputLabel, makeStyles, MenuItem, Select } from '@mui/material';
+import { Button, FormControl, Grid, InputLabel, MenuItem, Select } from '@mui/material';
 
 interface Props {
   watchYear: string,
@@ -36,11 +36,11 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
   const seasonList = ['', '冬', '春', '夏', '秋'];
 
   return (
-    <Grid container justifyContent="center" alignItems="center" style={style.section}>
-      <Grid item xs={8}>
+    <Grid container style={style.section} sx={{ justifyContent: "center", alignItems: "center" }}>
+      <Grid size={8}>
         視聴年度から絞り込み
       </Grid>
-      <Grid item xs={4}>
+      <Grid size={4}>
         <Button variant="contained" color="primary" onClick={()=>{
           switchShowInput(!showInput);
         }}>
@@ -49,7 +49,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
       </Grid>
       { showInput &&
         <>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <FormControl style={style.input}>
             <InputLabel shrink id="demo-simple-select-label">視聴年</InputLabel>
             <Select
@@ -64,7 +64,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <FormControl style={style.inputSeason}>
             <InputLabel shrink id="demo-simple-select-label">季節</InputLabel>
             <Select
@@ -79,7 +79,7 @@ const FilterWatchYear: React.FC<Props> = ((props: Props)=>{
             </Select>
           </FormControl>
         </Grid>
-        <Grid item xs={4}>
+        <Grid size={4}>
           <Button variant="contained" color="primary" onClick={()=>{
             props.getWatchDate();
           }}>

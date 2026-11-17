@@ -6,11 +6,7 @@ import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
 import FilterRate from "./FilterRate";
-import GoogleLogin from 'react-google-login';
-import { GoogleOAuth, GoogleProfile } from "../../type/GoogleOAuth";
 import { useLocation } from "react-router-dom";
-
-export const showMinogashiAnimeURL = 'https://pollux.hirarira.net/showMinogashiAnime/';
 
 const styles = {
   main: {
@@ -50,8 +46,8 @@ export const rankList: Rank[] = [
   {id: 10, rank: 0,  name:"未評価",   color: '#ffffff'},
   {id: 11, rank: -1, name:"評価不能", color: '#bbbbbb'},
   {id: 12, rank: -2, name:"詰み",     color: '#ffffff'},
-  {id: 12, rank: -3, name:"視聴断念", color: '#bbbbbb'},
-  {id: 12, rank: -4, name:"未評価",   color: '#ffffff'},
+  {id: 13, rank: -3, name:"視聴断念", color: '#bbbbbb'},
+  {id: 14, rank: -4, name:"未評価",   color: '#ffffff'},
 ];
 
 const WatchAnimeList: React.FC = (()=>{
@@ -64,17 +60,9 @@ const WatchAnimeList: React.FC = (()=>{
   const [lowRate, setLowRate] = useState<number>(75);
   const [animeReviewList, setAnimeReviewList] = useState<AnimeReview[]>([]);
   const [loading, switchLoading] = useState(false);
-  const [isPrivateMode, switchPrivateMode] = useState(false);
-  // ログイン情報
-  const [loginInfo, setLoginInfo] = useState<GoogleOAuth|null>(null);
-  const [googleProfile, setGoogleProfile] = useState<GoogleProfile|null>(null);
   // 全件取得中か
   const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
-  const [params, setParams] = useState<URLSearchParams|undefined>(undefined);
-  // const classes = useStyles();
   const getAnimeReview = new GetAnimeReview();
-  const googleClientID: string = process.env.REACT_APP_GOOGLE_CLIENT_ID || "";
-  const matchOwnerID = process.env.REACT_APP_ALLOW_GOOGLE_ID;
 
   const setRank = (rank: number) => {
     for(let i=0; i<rankList.length; i++){
@@ -105,13 +93,11 @@ const WatchAnimeList: React.FC = (()=>{
       }
       return 0;
     })
-    // 0点以下を切り捨てる
-    // PrivateModeでは全てを表示する
-    if(!isPrivateMode) {
-      reviewList = reviewList.filter((review: AnimeReview)=>{
-        return review.rate > 0 || review.rate === -4;
-      })
-    }
+    // 0点以下を切り捨てる（未評価の -4 は表示する）
+    // ※旧ログイン時のPrivateMode（全件表示）は、ログイン機能撤去に伴い廃止
+    reviewList = reviewList.filter((review: AnimeReview)=>{
+      return review.rate > 0 || review.rate === -4;
+    })
     // 標準偏差を求める
     // 1点以上のアニメの数を求める
     const targetAnimeList = reviewList.filter((x)=>{ return x.rate > 0 });
@@ -135,25 +121,34 @@ const WatchAnimeList: React.FC = (()=>{
   const getWatchDate = async (year: string = watchYear, season: string = watchSeason) => {
     const path = `${year}年${season}`;
     switchLoading(true);
-    const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
-    setAnimeReviewList(formatReviewData(reviewList));
-    switchLoading(false);
+    try {
+      const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
+      setAnimeReviewList(formatReviewData(reviewList));
+    } finally {
+      switchLoading(false);
+    }
     setGetAllFlag(false);
   }
 
   const getRate = async (high: number, low: number) => {
     switchLoading(true);
-    const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
-    setAnimeReviewList(formatReviewData(reviewList));
-    switchLoading(false);
+    try {
+      const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
+      setAnimeReviewList(formatReviewData(reviewList));
+    } finally {
+      switchLoading(false);
+    }
     setGetAllFlag(false);
   }
 
   const getAll = async () => {
     switchLoading(true);
-    const reviewList: AnimeReview[] = await getAnimeReview.getAll();
-    setAnimeReviewList(formatReviewData(reviewList));
-    switchLoading(false);
+    try {
+      const reviewList: AnimeReview[] = await getAnimeReview.getAll();
+      setAnimeReviewList(formatReviewData(reviewList));
+    } finally {
+      switchLoading(false);
+    }
     setGetAllFlag(true);
   }
 
@@ -166,37 +161,7 @@ const WatchAnimeList: React.FC = (()=>{
     )
   }
 
-  const responseGoogle = (response: any) => {
-    setLoginInfo(response)
-    setGoogleProfile(response.profileObj);
-    localStorage.setItem('googleProfile', JSON.stringify(response.profileObj));
-    const isPrivate = response.profileObj.googleId === matchOwnerID;
-    switchPrivateMode(isPrivate);
-  }
-
-  const getLoginInfo = () => {
-    if(googleProfile === null) {
-      return null;
-    }
-    return (
-      <>
-        <div><img src={googleProfile.imageUrl} width="32" height="32" /></div>
-        <div>あなたは{googleProfile.name}でログインをしています</div>
-        <div>{googleProfile.email}</div>
-        <div>GoogleID: {googleProfile.googleId}</div>
-      </>
-    )
-  }
-
   useEffect(() => {
-    // LocalStorageからログイン情報を抽出する
-    const googleProfileStr: string | null = localStorage.getItem("googleProfile");
-    if(googleProfileStr) {
-      const googleProfile: GoogleProfile = JSON.parse(googleProfileStr);
-      setGoogleProfile(googleProfile);
-      const isPrivate = googleProfile.googleId === matchOwnerID;
-      switchPrivateMode(isPrivate);
-    }
     const tmpParams = new URLSearchParams(location.search);
     const year = tmpParams.get('year');
     const season = tmpParams.get('season');
@@ -204,45 +169,26 @@ const WatchAnimeList: React.FC = (()=>{
       setWatchYear(year);
       setWatchSeason(season);
       getWatchDate(year, season);
-      console.log("aaaaa");
     }
     else {
       /** 初回アクセス時に名作だけ読み込む */
       getRate(highRate, lowRate);
     }
-    /** クエリパラメータを保持しておく */
-    setParams(tmpParams);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (
     <>
-      <Header
-        isPrivate={isPrivateMode}
-      />
+      <Header />
       <Grid container style={styles.main}>
-        <Grid item xs={2} style={styles.title}>
+        <Grid size={2} style={styles.title}>
         </Grid>
-        <Grid item xs={8} style={styles.title}>
+        <Grid size={8} style={styles.title}>
           {getTitile()}
         </Grid>
-        <Grid item xs={2} style={styles.title}>
-          <div>
-            管理用Login
-          </div>
-          <div>
-            <GoogleLogin
-              clientId={googleClientID}
-              buttonText="Login"
-              onSuccess={responseGoogle}
-              onFailure={responseGoogle}
-              cookiePolicy={'single_host_origin'}
-            />
-          </div>
+        <Grid size={2} style={styles.title}>
         </Grid>
-        <Grid item xs={12}>
-          {getLoginInfo()}
-        </Grid>
-        <Grid item xs={12} style={styles.inputSection}>
+        <Grid size={12} style={styles.inputSection}>
           <Card style={styles.card}>
             <CardContent>
               <FilterWatchYear
@@ -266,14 +212,14 @@ const WatchAnimeList: React.FC = (()=>{
               />
             </CardContent>
           </Card>
-          
+
           <Card style={styles.card}>
             <CardContent>
-              <Grid container justifyContent="center" alignItems="center">
-                <Grid item xs={8}>
+              <Grid container sx={{ justifyContent: "center", alignItems: "center" }}>
+                <Grid size={8}>
                   全てのアニメを取得する
                 </Grid>
-                <Grid item xs={4}>
+                <Grid size={4}>
                   <Button variant="contained" color="primary" onClick={getAll}>
                     取得する
                   </Button>
@@ -281,35 +227,15 @@ const WatchAnimeList: React.FC = (()=>{
               </Grid>
             </CardContent>
           </Card>
-
-          { isPrivateMode &&
-            <Card style={styles.card}>
-              <CardContent>
-                <Grid container justifyContent="center" alignItems="center">
-                  <Grid item xs={8}>
-                    未評価アニメを取得する
-                  </Grid>
-                  <Grid item xs={4}>
-                    <Button variant="contained" color="primary" onClick={()=>{
-                      getRate(0, -10);
-                    }}>
-                      取得する
-                    </Button>
-                  </Grid>
-                </Grid>
-              </CardContent>
-            </Card>
-          }
         </Grid>
 
-        <Grid item xs={12}>
+        <Grid size={12}>
           {loading &&
             <CircularProgress />
           }
           {!loading &&
             <ShowAnimeReview
               reviewList={animeReviewList}
-              isPrivateMode={isPrivateMode}
               getAllFlag={getAllFlag}
             />
           }

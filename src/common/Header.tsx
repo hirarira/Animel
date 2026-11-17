@@ -1,13 +1,10 @@
 import React from "react";
 import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import { showMinogashiAnimeURL } from "../pages/WatchAnimeList/Index";
 
-interface Props {
-  isPrivate: boolean
-}
-
-const Header: React.FC<Props> = ((props: Props)=>{
+// ログイン機能と管理ページ（showMinogashiAnime）へのリンクは撤去済み。
+// 管理ページへは直接アクセスする運用に変更したため、ここには出さない。
+const Header: React.FC = (() => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
     setAnchorEl(event.currentTarget);
@@ -34,11 +31,6 @@ const Header: React.FC<Props> = ((props: Props)=>{
       open={Boolean(anchorEl)}
       onClose={handleClose}
     >
-      { props.isPrivate &&
-        <MenuItem onClick={()=>{
-          window.location.href = showMinogashiAnimeURL;
-        }}>アニメ見逃し・評価アプリ</MenuItem>
-      }
       <MenuItem onClick={()=>{
         window.location.href = './anime_houshin.pdf';
       }}>アニメ評価方針（PDF）</MenuItem>

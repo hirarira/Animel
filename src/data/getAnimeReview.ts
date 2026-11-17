@@ -1,8 +1,8 @@
-const axios = require('axios');
+import axios, { AxiosInstance } from 'axios';
 
 export class GetAnimeReview {
   host: string;
-  instance: any;
+  instance: AxiosInstance;
   constructor() {
     this.host = 'https://pollux.hirarira.net/';
     this.instance = axios.create({
@@ -13,8 +13,8 @@ export class GetAnimeReview {
 
   /**
    * 特定の視聴月にマッチするアニメを取得する
-   * @param season 
-   * @returns 
+   * @param season
+   * @returns
    */
   async getWatchDate(season: string) {
     const path = `/showMinogashiAnime/api/getWatchDate/${season}`;
@@ -27,9 +27,9 @@ export class GetAnimeReview {
 
   /**
    * 特定の評価にマッチするアニメを取得する
-   * @param high 
-   * @param low 
-   * @returns 
+   * @param high
+   * @param low
+   * @returns
    */
   async getWatchRate(high: number, low: number) {
     const path = `/showMinogashiAnime/api/getRoundRate/${high}/${low}`;
@@ -53,4 +53,3 @@ export class GetAnimeReview {
   }
 
 }
-
