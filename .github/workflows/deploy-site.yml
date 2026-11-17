@@ -1,5 +1,5 @@
 name: deploy-site
-on: 
+on:
   push:
     branches:
       - master
@@ -12,38 +12,32 @@ jobs:
     timeout-minutes: 10
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [22.x]
     steps:
       # Checkout Branch
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       # Use Node.js
       - name: Use Node.js ${{ matrix.node-version }}
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
-      # set .env file
-      - name: Set Env REACT_APP_ALLOW_GOOGLE_ID
-        run: echo "REACT_APP_ALLOW_GOOGLE_ID=${{ secrets.REACT_APP_ALLOW_GOOGLE_ID }}" > .env
-      # set .env file
-      - name: Set Env REACT_APP_GOOGLE_CLIENT_ID
-        run: echo "REACT_APP_GOOGLE_CLIENT_ID=${{ secrets.REACT_APP_GOOGLE_CLIENT_ID }}" >> .env
       # npm install
       - name: npm install
-        run: npm install
-      # build ReactApp
-      - name: React Build
+        run: npm ci
+      # build ReactApp (Vite)
+      - name: Build
         run: npm run build
       # Check Build Directory
       - name: Listup-directory
-        run: ls -la build
+        run: ls -la dist
       # Deploy FTP Server
       - name: FTP-Deploy-Action
-        uses: SamKirkland/FTP-Deploy-Action@2.0.0 
+        uses: SamKirkland/FTP-Deploy-Action@2.0.0
         env:
           FTP_SERVER: ${{ secrets.FTP_HOST }}
           FTP_USERNAME: ${{ secrets.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
-          LOCAL_DIR: build
+          FTP_PASSWORD: ${{ secrets.FTP_PASS }}
+          LOCAL_DIR: dist
           REMOTE_DIR: Animel
           ARGS: --verbose --parallel=100
       # Notice Slack
