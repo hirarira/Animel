@@ -37,7 +37,7 @@ jobs:
         env:
           FTP_SERVER: ${{ secrets.FTP_HOST }}
           FTP_USERNAME: ${{ secrets.FTP_USER }}
-          FTP_PASSWORD: ${{ secrets.FTP_PASS }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
           LOCAL_DIR: dist
           REMOTE_DIR: Animel
           ARGS: --verbose --parallel=100
