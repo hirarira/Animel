@@ -1,9 +1,13 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { CircularProgress, Grid, Typography } from '@mui/material';
+import { Alert, Button, Grid, Skeleton, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
+import ViewListIcon from '@mui/icons-material/ViewList';
+import ViewModuleIcon from '@mui/icons-material/ViewModule';
 import Header from "../../common/Header";
 import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
-import ShowAnimeReview from "./ShowAnimeReview";
+import AnimeGrid from "./AnimeGrid";
+import AnimeCards from "./AnimeCards";
+import AnimeDetailDrawer from "./AnimeDetailDrawer";
 import FilterBar, { FilterMode } from "./FilterBar";
 import { useLocation } from "react-router-dom";
 
@@ -54,6 +58,12 @@ const WatchAnimeList: React.FC = (()=>{
   const [mode, setMode] = useState<FilterMode>('rate');
   // タイトル検索（取得済みデータへの絞り込み）
   const [searchText, setSearchText] = useState<string>('');
+  // 一覧の表示形式（グリッド / カード）
+  const [view, setView] = useState<'grid' | 'cards'>('grid');
+  // 詳細ドロワーで表示中のアニメ
+  const [selected, setSelected] = useState<AnimeReview | null>(null);
+  // 取得エラー
+  const [error, setError] = useState<string | null>(null);
   const getAnimeReview = new GetAnimeReview();
 
   const setRank = (rank: number) => {
@@ -116,6 +126,9 @@ const WatchAnimeList: React.FC = (()=>{
     try {
       const reviewList: AnimeReview[] = await getAnimeReview.getWatchDate(path);
       setAnimeReviewList(formatReviewData(reviewList));
+      setError(null);
+    } catch {
+      setError('アニメデータの取得に失敗しました。時間をおいて再試行してください。');
     } finally {
       switchLoading(false);
     }
@@ -127,6 +140,9 @@ const WatchAnimeList: React.FC = (()=>{
     try {
       const reviewList: AnimeReview[] = await getAnimeReview.getWatchRate(high, low);
       setAnimeReviewList(formatReviewData(reviewList));
+      setError(null);
+    } catch {
+      setError('アニメデータの取得に失敗しました。時間をおいて再試行してください。');
     } finally {
       switchLoading(false);
     }
@@ -138,6 +154,9 @@ const WatchAnimeList: React.FC = (()=>{
     try {
       const reviewList: AnimeReview[] = await getAnimeReview.getAll();
       setAnimeReviewList(formatReviewData(reviewList));
+      setError(null);
+    } catch {
+      setError('アニメデータの取得に失敗しました。時間をおいて再試行してください。');
     } finally {
       switchLoading(false);
     }
@@ -244,22 +263,60 @@ const WatchAnimeList: React.FC = (()=>{
         </Grid>
 
         <Grid size={12}>
-          {loading &&
-            <CircularProgress />
-          }
-          {!loading && displayList.length > 0 &&
-            <ShowAnimeReview
+          <Stack direction="row" sx={{ justifyContent: 'flex-end', margin: '0 10px 8px' }}>
+            <ToggleButtonGroup
+              exclusive
+              size="small"
+              value={view}
+              onChange={(_, value: 'grid' | 'cards' | null) => {
+                if (value) setView(value);
+              }}
+              aria-label="表示形式"
+            >
+              <ToggleButton value="grid" aria-label="グリッド表示">
+                <ViewListIcon fontSize="small" />
+              </ToggleButton>
+              <ToggleButton value="cards" aria-label="カード表示">
+                <ViewModuleIcon fontSize="small" />
+              </ToggleButton>
+            </ToggleButtonGroup>
+          </Stack>
+
+          {error && (
+            <Alert
+              severity="error"
+              sx={{ margin: '0 10px 10px', textAlign: 'left' }}
+              action={
+                <Button color="inherit" size="small" onClick={() => handleModeChange(mode)}>
+                  再試行
+                </Button>
+              }
+            >
+              {error}
+            </Alert>
+          )}
+
+          {view === 'grid' && (
+            <AnimeGrid
               reviewList={displayList}
               getAllFlag={getAllFlag}
+              loading={loading}
+              onSelect={setSelected}
             />
-          }
-          {!loading && displayList.length === 0 &&
-            <Typography color="text.secondary" sx={{ margin: '24px' }}>
-              該当するアニメがありません
-            </Typography>
-          }
+          )}
+          {view === 'cards' && loading && (
+            <Stack spacing={2} sx={{ margin: '0 10px' }}>
+              <Skeleton variant="rounded" height={120} />
+              <Skeleton variant="rounded" height={120} />
+              <Skeleton variant="rounded" height={120} />
+            </Stack>
+          )}
+          {view === 'cards' && !loading && (
+            <AnimeCards reviewList={displayList} onSelect={setSelected} />
+          )}
         </Grid>
       </Grid>
+      <AnimeDetailDrawer review={selected} onClose={() => setSelected(null)} />
     </>
   )
 });
