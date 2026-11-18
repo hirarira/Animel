@@ -85,7 +85,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
           {props.review.watchDate}
         </TableCell>
         <TableCell style={style.cell}>
-          {props.review.title}
+          <a href={shoboiURL} target="_blank" rel="noreferrer">{props.review.title}</a>
         </TableCell>
         <TableCell style={style.cell} sx={hideBelowLg}>
           {props.review.comment}
