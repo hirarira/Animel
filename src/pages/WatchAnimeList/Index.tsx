@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { Button, CircularProgress, Grid, Card, CardContent } from '@mui/material';
+import React, { useEffect, useMemo, useState } from "react";
+import { CircularProgress, Grid, Typography } from '@mui/material';
 import Header from "../../common/Header";
-import FilterWatchYear from "./FilterWatchYear";
 import { GetAnimeReview } from "../../data/getAnimeReview";
 import { AnimeReview, Rank } from "../../data/AnimeReview";
 import ShowAnimeReview from "./ShowAnimeReview";
-import FilterRate from "./FilterRate";
+import FilterBar, { FilterMode } from "./FilterBar";
 import { useLocation } from "react-router-dom";
 
 const styles = {
@@ -18,12 +17,6 @@ const styles = {
   },
   section: {
     width: '100%'
-  },
-  inputSection: {
-    width: 'calc(100% - 20px)',
-    boxShadow: '0 10px 10px 0 rgba(0, 0, 0, 0.5)',
-    padding: '10px',
-    margin: '10px'
   },
 }
 
@@ -47,8 +40,8 @@ export const rankList: Rank[] = [
 
 const WatchAnimeList: React.FC = (()=>{
   const location = useLocation();
-  // デフォルト表示年月
-  const defaultYear = '2024';
+  // デフォルト表示年は現在の年（旧: '2024' 固定）
+  const defaultYear = String(new Date().getFullYear());
   const [watchYear, setWatchYear] = useState<string>(defaultYear);
   const [watchSeason, setWatchSeason] = useState<string>('');
   const [highRate, setHighRate] = useState<number>(100);
@@ -57,6 +50,10 @@ const WatchAnimeList: React.FC = (()=>{
   const [loading, switchLoading] = useState(false);
   // 全件取得中か
   const [getAllFlag, setGetAllFlag] = useState<boolean>(false);
+  // 絞り込みモード（期間 / 評価 / 全件）
+  const [mode, setMode] = useState<FilterMode>('rate');
+  // タイトル検索（取得済みデータへの絞り込み）
+  const [searchText, setSearchText] = useState<string>('');
   const getAnimeReview = new GetAnimeReview();
 
   const setRank = (rank: number) => {
@@ -147,6 +144,49 @@ const WatchAnimeList: React.FC = (()=>{
     setGetAllFlag(true);
   }
 
+  const handleModeChange = (newMode: FilterMode) => {
+    setMode(newMode);
+    if (newMode === 'period') {
+      getWatchDate();
+    } else if (newMode === 'rate') {
+      getRate(highRate, lowRate);
+    } else {
+      getAll();
+    }
+  };
+
+  const handleYearChange = (year: string) => {
+    setWatchYear(year);
+    getWatchDate(year, watchSeason);
+  };
+
+  const handleSeasonChange = (season: string) => {
+    setWatchSeason(season);
+    getWatchDate(watchYear, season);
+  };
+
+  const handleRateRangeChange = (range: [number, number]) => {
+    setLowRate(range[0]);
+    setHighRate(range[1]);
+  };
+
+  const handleRateRangeCommit = (range: [number, number]) => {
+    getRate(range[1], range[0]);
+  };
+
+  const handleRankSelect = (range: [number, number]) => {
+    setMode('rate');
+    handleRateRangeChange(range);
+    getRate(range[1], range[0]);
+  };
+
+  // タイトル検索で絞り込んだ表示用リスト
+  const displayList = useMemo(() => {
+    const keyword = searchText.trim().toLowerCase();
+    if (!keyword) return animeReviewList;
+    return animeReviewList.filter((review) => review.title.toLowerCase().includes(keyword));
+  }, [animeReviewList, searchText]);
+
   const getTitile = () => {
     return (
       <>
@@ -163,6 +203,7 @@ const WatchAnimeList: React.FC = (()=>{
     if(year !== null && season !== null) {
       setWatchYear(year);
       setWatchSeason(season);
+      setMode('period');
       getWatchDate(year, season);
     }
     else {
@@ -183,56 +224,39 @@ const WatchAnimeList: React.FC = (()=>{
         </Grid>
         <Grid size={2} style={styles.title}>
         </Grid>
-        <Grid size={12} style={styles.inputSection}>
-          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
-            <CardContent>
-              <FilterWatchYear
-                watchYear={watchYear}
-                watchSeason={watchSeason}
-                setWatchYear={setWatchYear}
-                setWatchSeason={setWatchSeason}
-                getWatchDate={getWatchDate}
-              />
-            </CardContent>
-          </Card>
-
-          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
-            <CardContent>
-              <FilterRate
-                lowRate={lowRate}
-                highRate={highRate}
-                setLowRate={setLowRate}
-                setHighRate={setHighRate}
-                getRate={getRate}
-              />
-            </CardContent>
-          </Card>
-
-          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
-            <CardContent>
-              <Grid container sx={{ justifyContent: "center", alignItems: "center" }}>
-                <Grid size={8}>
-                  全てのアニメを取得する
-                </Grid>
-                <Grid size={4}>
-                  <Button variant="contained" color="primary" onClick={getAll}>
-                    取得する
-                  </Button>
-                </Grid>
-              </Grid>
-            </CardContent>
-          </Card>
+        <Grid size={12}>
+          <FilterBar
+            mode={mode}
+            onModeChange={handleModeChange}
+            watchYear={watchYear}
+            watchSeason={watchSeason}
+            onYearChange={handleYearChange}
+            onSeasonChange={handleSeasonChange}
+            rateRange={[lowRate, highRate]}
+            onRateRangeChange={handleRateRangeChange}
+            onRateRangeCommit={handleRateRangeCommit}
+            onRankSelect={handleRankSelect}
+            searchText={searchText}
+            onSearchTextChange={setSearchText}
+            resultCount={displayList.length}
+            totalCount={animeReviewList.length}
+          />
         </Grid>
 
         <Grid size={12}>
           {loading &&
             <CircularProgress />
           }
-          {!loading &&
+          {!loading && displayList.length > 0 &&
             <ShowAnimeReview
-              reviewList={animeReviewList}
+              reviewList={displayList}
               getAllFlag={getAllFlag}
             />
+          }
+          {!loading && displayList.length === 0 &&
+            <Typography color="text.secondary" sx={{ margin: '24px' }}>
+              該当するアニメがありません
+            </Typography>
           }
         </Grid>
       </Grid>
