@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Collapse, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableRow, useTheme } from '@mui/material';
+import { Collapse, IconButton, Paper, Table, TableBody, TableCell, TableContainer, TableRow } from '@mui/material';
 import { AnimeReview } from "../../data/AnimeReview";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp';
@@ -47,14 +47,18 @@ const showBelowLgRow = { display: { xs: 'table-row', lg: 'none' } } as const;
 
 const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
   const [showDetail, switchShowDetail] = useState<boolean>(false);
-  const theme = useTheme();
-  // ダークモードではランク色を薄く敷く（パステル地に白文字だと読めないため）
-  const rowBackground = theme.palette.mode === 'dark' ? `${props.review.rank.color}40` : props.review.rank.color;
+  // 行の背景はランク色（パステル）で固定なので、文字はモードによらず黒で固定する
+  // （ダークモードの白文字だと明るい背景に溶けて読めないため）
+  const onRankColor = {
+    '& .MuiTableCell-root': { color: '#212121', borderColor: 'rgba(0, 0, 0, 0.12)' },
+    '& .MuiIconButton-root': { color: '#212121' },
+    '& a': { color: '#0d47a1' },
+  } as const;
   const shoboiURL = `https://cal.syoboi.jp/tid/${props.review.tid}`;
   const colSpan = props.getAllFlag? 8: 7;
   return (
     <>
-      <TableRow style={{ backgroundColor: rowBackground }}>
+      <TableRow sx={{ backgroundColor: props.review.rank.color, ...onRankColor }}>
         <TableCell style={style.rank}>
           <IconButton
             aria-label="expand row"
@@ -91,7 +95,7 @@ const ShowOneAnimeReview: React.FC<Props> = ((props: Props)=>{
         <TableCell style={style.hiddenCell} colSpan={colSpan}>
           <Collapse in={showDetail} timeout="auto" unmountOnExit>
             <TableContainer component={Paper}>
-              <Table style={{ backgroundColor: rowBackground, opacity: 0.8 }}>
+              <Table sx={{ backgroundColor: props.review.rank.color, opacity: 0.8, ...onRankColor }}>
                 <TableBody>
                   <TableRow>
                     <TableCell style={style.leftCell}>
