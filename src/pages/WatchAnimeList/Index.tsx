@@ -25,11 +25,6 @@ const styles = {
     padding: '10px',
     margin: '10px'
   },
-  card: {
-    margin: '10px',
-    padding: '5px',
-    background: '#f0f8ff'
-  }
 }
 
 export const rankList: Rank[] = [
@@ -189,7 +184,7 @@ const WatchAnimeList: React.FC = (()=>{
         <Grid size={2} style={styles.title}>
         </Grid>
         <Grid size={12} style={styles.inputSection}>
-          <Card style={styles.card}>
+          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
             <CardContent>
               <FilterWatchYear
                 watchYear={watchYear}
@@ -201,7 +196,7 @@ const WatchAnimeList: React.FC = (()=>{
             </CardContent>
           </Card>
 
-          <Card style={styles.card}>
+          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
             <CardContent>
               <FilterRate
                 lowRate={lowRate}
@@ -213,7 +208,7 @@ const WatchAnimeList: React.FC = (()=>{
             </CardContent>
           </Card>
 
-          <Card style={styles.card}>
+          <Card sx={(theme) => ({ margin: '10px', padding: '5px', backgroundColor: theme.palette.mode === 'dark' ? theme.palette.action.hover : '#f0f8ff' })}>
             <CardContent>
               <Grid container sx={{ justifyContent: "center", alignItems: "center" }}>
                 <Grid size={8}>
