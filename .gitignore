@@ -12,6 +12,9 @@
 /build
 /dist
 
+# サムネイル（ローカル確認用。本番はサーバーへ直接配置し、リポジトリには含めない）
+/public/thumbs/
+
 # misc
 .DS_Store
 .env.local
