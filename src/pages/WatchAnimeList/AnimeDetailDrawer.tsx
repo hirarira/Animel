@@ -4,11 +4,12 @@ import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { AnimeReview } from "../../data/AnimeReview";
 import AnimeThumbnail from "./AnimeThumbnail";
-import { getThumbnailUrl } from "./thumbnail";
+import { resolveThumbnailUrl, ThumbnailMap } from "./thumbnail";
 
 interface Props {
   review: AnimeReview | null;
   onClose: () => void;
+  thumbnails: ThumbnailMap;
 }
 
 const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
@@ -33,7 +34,7 @@ const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
             </Stack>
 
             <AnimeThumbnail
-              src={getThumbnailUrl(review)}
+              src={resolveThumbnailUrl(review, props.thumbnails)}
               sx={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 1 }}
             />
 

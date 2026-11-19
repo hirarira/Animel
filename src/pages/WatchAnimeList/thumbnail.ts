@@ -1,28 +1,47 @@
-import { AnimeReview } from "../../data/AnimeReview";
+// サムネイルの対応表（tid → ファイル名）は、画像と同じ静的ディレクトリに置いた
+// thumbnails.json から読み込む。リポジトリにもコードにも埋め込まないので、
+// サムネを増やすときは画像とJSONを置くだけでよい（Animelの再デプロイ不要）。
+// 例: { "2077": "2077.png", "2142": "2142.jpg" }（拡張子はファイル名側で自由）
 
-// サムネイルの置き場所（リポジトリ外の静的ディレクトリを参照する）。
-// 環境変数 VITE_THUMBNAIL_BASE_URL で差し替え可能。
 const THUMBNAIL_BASE = (
   import.meta.env.VITE_THUMBNAIL_BASE_URL
   ?? 'https://pollux.hirarira.net/showMinogashiAnime/thumbs/'
 ).replace(/\/?$/, '/');
 
-// モック用マッピング（tid → ファイル名）。
-// バックエンドが thumbnail を返すようになったら、この仮対応は不要になる。
-const mockThumbnailFiles: Record<number, string> = {
-  2077: '2077.png', // 魔法少女まどか☆マギカ
-  2142: '2142.png', // Steins;Gate
-  4617: '4617.png', // メイドインアビス
-  4786: '4786.png', // 宇宙よりも遠い場所
-  7382: '7382.png', // アポカリプスホテル
-  7604: '7604.png', // グノーシア
+export type ThumbnailMap = Map<number, string>;
+
+let cache: Promise<ThumbnailMap> | null = null;
+
+// thumbnails.json を読み、tid → サムネイル完全URL のMapを返す。
+// 読めなかった場合は空のMap（サムネなし＝従来表示）。
+export const loadThumbnailMap = (): Promise<ThumbnailMap> => {
+  if (!cache) {
+    cache = (async () => {
+      const map: ThumbnailMap = new Map();
+      try {
+        const response = await fetch(`${THUMBNAIL_BASE}thumbnails.json`);
+        if (response.ok) {
+          const data: Record<string, string> = await response.json();
+          Object.entries(data).forEach(([tid, file]) => {
+            const id = Number(tid);
+            if (Number.isFinite(id) && file) {
+              map.set(id, `${THUMBNAIL_BASE}${file}`);
+            }
+          });
+        }
+      } catch {
+        // サムネなしで継続
+      }
+      return map;
+    })();
+  }
+  return cache;
 };
 
-// サムネイルURLを返す。設定されていないアニメでは undefined（＝表示しない）。
-export const getThumbnailUrl = (review: AnimeReview): string | undefined => {
-  if (review.thumbnail) {
-    return review.thumbnail;
-  }
-  const file = mockThumbnailFiles[review.tid];
-  return file ? `${THUMBNAIL_BASE}${file}` : undefined;
+// APIが thumbnail を返した場合はそちら優先、なければJSONの対応表を見る。
+export const resolveThumbnailUrl = (
+  review: { tid: number; thumbnail?: string },
+  thumbnails: ThumbnailMap
+): string | undefined => {
+  return review.thumbnail ?? thumbnails.get(review.tid);
 };

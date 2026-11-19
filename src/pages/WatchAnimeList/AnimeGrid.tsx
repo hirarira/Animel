@@ -4,13 +4,14 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { jaJP } from '@mui/x-data-grid/locales';
 import { AnimeReview } from "../../data/AnimeReview";
 import AnimeThumbnail from "./AnimeThumbnail";
-import { getThumbnailUrl } from "./thumbnail";
+import { resolveThumbnailUrl, ThumbnailMap } from "./thumbnail";
 
 interface Props {
   reviewList: AnimeReview[];
   getAllFlag: boolean;
   loading: boolean;
   onSelect: (review: AnimeReview) => void;
+  thumbnails: ThumbnailMap;
 }
 
 type Row = AnimeReview & { gridId: string; rowNumber: number };
@@ -26,7 +27,7 @@ const AnimeGrid: React.FC<Props> = ((props: Props) => {
     {
       field: 'thumbnail', headerName: '', width: 84, sortable: false, filterable: false,
       renderCell: (params) => (
-        <AnimeThumbnail src={getThumbnailUrl(params.row)} sx={{ width: 64, height: 36, borderRadius: 0.5 }} />
+        <AnimeThumbnail src={resolveThumbnailUrl(params.row, props.thumbnails)} sx={{ width: 64, height: 36, borderRadius: 0.5 }} />
       ),
     },
     {

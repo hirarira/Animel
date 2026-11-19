@@ -9,6 +9,7 @@ import AnimeGrid from "./AnimeGrid";
 import AnimeCards from "./AnimeCards";
 import AnimeDetailDrawer from "./AnimeDetailDrawer";
 import FilterBar, { FilterMode } from "./FilterBar";
+import { loadThumbnailMap, ThumbnailMap } from "./thumbnail";
 import { useLocation } from "react-router-dom";
 
 const styles = {
@@ -64,6 +65,8 @@ const WatchAnimeList: React.FC = (()=>{
   const [selected, setSelected] = useState<AnimeReview | null>(null);
   // 取得エラー
   const [error, setError] = useState<string | null>(null);
+  // サムネイル対応表（外部JSONから読み込み）
+  const [thumbnails, setThumbnails] = useState<ThumbnailMap>(new Map());
   const getAnimeReview = new GetAnimeReview();
 
   const setRank = (rank: number) => {
@@ -216,6 +219,10 @@ const WatchAnimeList: React.FC = (()=>{
   }
 
   useEffect(() => {
+    loadThumbnailMap().then(setThumbnails);
+  }, []);
+
+  useEffect(() => {
     const tmpParams = new URLSearchParams(location.search);
     const year = tmpParams.get('year');
     const season = tmpParams.get('season');
@@ -302,6 +309,7 @@ const WatchAnimeList: React.FC = (()=>{
               getAllFlag={getAllFlag}
               loading={loading}
               onSelect={setSelected}
+              thumbnails={thumbnails}
             />
           )}
           {view === 'cards' && loading && (
@@ -312,11 +320,11 @@ const WatchAnimeList: React.FC = (()=>{
             </Stack>
           )}
           {view === 'cards' && !loading && (
-            <AnimeCards reviewList={displayList} onSelect={setSelected} />
+            <AnimeCards reviewList={displayList} onSelect={setSelected} thumbnails={thumbnails} />
           )}
         </Grid>
       </Grid>
-      <AnimeDetailDrawer review={selected} onClose={() => setSelected(null)} />
+      <AnimeDetailDrawer review={selected} onClose={() => setSelected(null)} thumbnails={thumbnails} />
     </>
   )
 });
