@@ -3,6 +3,8 @@ import { Box, Button, Chip, Divider, Drawer, IconButton, Stack, Typography } fro
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import { AnimeReview } from "../../data/AnimeReview";
+import AnimeThumbnail from "./AnimeThumbnail";
+import { getThumbnailUrl } from "./thumbnail";
 
 interface Props {
   review: AnimeReview | null;
@@ -29,6 +31,11 @@ const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
                 <CloseIcon />
               </IconButton>
             </Stack>
+
+            <AnimeThumbnail
+              src={getThumbnailUrl(review)}
+              sx={{ width: '100%', aspectRatio: '16 / 9', borderRadius: 1 }}
+            />
 
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }} useFlexGap>
               <Chip

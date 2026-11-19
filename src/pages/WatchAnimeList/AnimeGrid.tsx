@@ -3,6 +3,8 @@ import { Box, Chip, LinearProgress, Link, Typography } from '@mui/material';
 import { DataGrid, GridColDef } from '@mui/x-data-grid';
 import { jaJP } from '@mui/x-data-grid/locales';
 import { AnimeReview } from "../../data/AnimeReview";
+import AnimeThumbnail from "./AnimeThumbnail";
+import { getThumbnailUrl } from "./thumbnail";
 
 interface Props {
   reviewList: AnimeReview[];
@@ -21,6 +23,12 @@ const AnimeGrid: React.FC<Props> = ((props: Props) => {
 
   const columns: GridColDef<Row>[] = [
     { field: 'rowNumber', headerName: '順位', width: 64, sortable: true },
+    {
+      field: 'thumbnail', headerName: '', width: 84, sortable: false, filterable: false,
+      renderCell: (params) => (
+        <AnimeThumbnail src={getThumbnailUrl(params.row)} sx={{ width: 64, height: 36, borderRadius: 0.5 }} />
+      ),
+    },
     {
       field: 'rank', headerName: 'RANK', width: 104, sortable: true,
       sortComparator: (a, b) => (a?.rank ?? 0) - (b?.rank ?? 0),

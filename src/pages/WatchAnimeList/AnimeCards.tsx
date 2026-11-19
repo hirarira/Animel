@@ -1,6 +1,8 @@
 import React from "react";
 import { Box, Card, CardActionArea, CardContent, Chip, Grid, Stack, Typography } from '@mui/material';
 import { AnimeReview } from "../../data/AnimeReview";
+import AnimeThumbnail from "./AnimeThumbnail";
+import { getThumbnailUrl } from "./thumbnail";
 
 interface Props {
   reviewList: AnimeReview[];
@@ -21,6 +23,7 @@ const AnimeCards: React.FC<Props> = ((props: Props) => {
         <Grid key={`${review.tid}-${idx}`} size={{ xs: 12, sm: 6, md: 4 }}>
           <Card variant="outlined" sx={{ height: '100%' }}>
             <CardActionArea onClick={() => props.onSelect(review)} sx={{ height: '100%' }}>
+              <AnimeThumbnail src={getThumbnailUrl(review)} sx={{ width: '100%', height: 150 }} />
               <CardContent>
                 <Stack spacing={1}>
                   <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>

@@ -12,6 +12,8 @@ export interface AnimeReview {
   rank: Rank,
   // 偏差値
   deviation: number;
+  // サムネイル画像のURL（未設定のアニメでは存在しない）
+  thumbnail?: string;
 }
 
 export interface Rank {
