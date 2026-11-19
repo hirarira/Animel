@@ -3,9 +3,11 @@
 // サムネを増やすときは画像とJSONを置くだけでよい（Animelの再デプロイ不要）。
 // 例: { "2077": "2077.png", "2142": "2142.jpg" }（拡張子はファイル名側で自由）
 
+// デフォルトは同一オリジンの <base>/thumbs/（例: /Animel/thumbs/）。
+// 別サーバーに置く場合は環境変数 VITE_THUMBNAIL_BASE_URL で上書きする。
 const THUMBNAIL_BASE = (
   import.meta.env.VITE_THUMBNAIL_BASE_URL
-  ?? 'https://pollux.hirarira.net/showMinogashiAnime/thumbs/'
+  ?? `${import.meta.env.BASE_URL}thumbs/`
 ).replace(/\/?$/, '/');
 
 export type ThumbnailMap = Map<number, string>;
