@@ -36,21 +36,24 @@ const Header: React.FC = (() => {
         <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'left' }}>
           視聴したアニメリスト
         </Typography>
-        {/* 管理画面への導線は公開一覧とは分ける（モック準拠） */}
-        <Button
-          color="inherit"
-          variant="outlined"
-          size="small"
-          startIcon={<CalendarMonthIcon />}
-          endIcon={<LockIcon sx={{ fontSize: 13 }} />}
-          onClick={() => navigate('/manage/today')}
-          sx={{ borderRadius: 999, marginRight: 1, whiteSpace: 'nowrap' }}
-        >
-          今日見るアニメ
-          <Typography variant="caption" component="span" sx={{ marginLeft: 0.75, opacity: 0.85 }}>
-            管理用
-          </Typography>
-        </Button>
+        {/* 管理画面への導線は公開一覧とは分ける（モック準拠）。
+            未サインイン時は管理導線自体を出さない（ユーザー指示 2026-11-23） */}
+        {isSignedIn && (
+          <Button
+            color="inherit"
+            variant="outlined"
+            size="small"
+            startIcon={<CalendarMonthIcon />}
+            endIcon={<LockIcon sx={{ fontSize: 13 }} />}
+            onClick={() => navigate('/manage/today')}
+            sx={{ borderRadius: 999, marginRight: 1, whiteSpace: 'nowrap' }}
+          >
+            今日見るアニメ
+            <Typography variant="caption" component="span" sx={{ marginLeft: 0.75, opacity: 0.85 }}>
+              管理用
+            </Typography>
+          </Button>
+        )}
         <IconButton
           color="inherit"
           aria-label={isDark ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
@@ -100,15 +103,19 @@ const Header: React.FC = (() => {
       open={Boolean(anchorEl)}
       onClose={handleClose}
     >
-      <MenuItem onClick={()=>{
-        handleClose();
-        navigate('/manage/today');
-      }}>今日見るアニメ（管理用）</MenuItem>
-      <MenuItem onClick={()=>{
-        handleClose();
-        navigate('/manage/week');
-      }}>見逃し（過去1週間）（管理用）</MenuItem>
-      <Divider />
+      {isSignedIn && (
+        <>
+          <MenuItem onClick={()=>{
+            handleClose();
+            navigate('/manage/today');
+          }}>今日見るアニメ（管理用）</MenuItem>
+          <MenuItem onClick={()=>{
+            handleClose();
+            navigate('/manage/week');
+          }}>見逃し（過去1週間）（管理用）</MenuItem>
+          <Divider />
+        </>
+      )}
       <MenuItem onClick={()=>{
         window.location.href = './anime_houshin.pdf';
       }}>アニメ評価方針（PDF）</MenuItem>
