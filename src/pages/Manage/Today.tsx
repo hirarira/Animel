@@ -122,16 +122,18 @@ const Today: React.FC = () => {
     [storyApi, auth]
   );
 
-  const bulkTags = useMemo(() => {
+  // note のタグは作品タイトルそのまま（SNS 用ハッシュタグとは別物）。
+  // 投稿時に1つずつ貼れるよう、コピー用は改行区切りにする。
+  const bulkTitles = useMemo(() => {
     const seen = new Set<number>();
-    const tags: string[] = [];
+    const titles: string[] = [];
     for (const item of items) {
-      if (item.hashTag && !seen.has(item.tid)) {
+      if (!seen.has(item.tid)) {
         seen.add(item.tid);
-        tags.push(item.hashTag);
+        titles.push(item.title);
       }
     }
-    return tags.join(' ');
+    return titles;
   }, [items]);
 
   const watchedCount = items.filter((i) => i.minogashi === 1).length;
@@ -233,21 +235,21 @@ const Today: React.FC = () => {
             value={items.length ? (watchedCount / items.length) * 100 : 0}
             sx={{ height: 8, borderRadius: 999 }}
           />
-          {bulkTags && (
+          {bulkTitles.length > 0 && (
             <Stack direction="row" spacing={1} sx={{ alignItems: 'center', marginTop: 1.5, flexWrap: 'wrap' }}>
               <Typography variant="caption" color="text.secondary" sx={{ fontWeight: 700, letterSpacing: 0.5 }}>
-                note投稿用・この日のハッシュタグ
+                note投稿用・この日のタイトル
               </Typography>
               <Typography variant="body2" sx={{ fontWeight: 700, wordBreak: 'break-all', flexGrow: 1, minWidth: 200 }}>
-                {bulkTags}
+                {bulkTitles.join(' / ')}
               </Typography>
               <Button
                 size="small"
                 variant="contained"
                 startIcon={<ContentCopyIcon />}
                 onClick={async () => {
-                  const ok = await copyText(bulkTags);
-                  setToast(ok ? 'ハッシュタグをまとめてコピーしました。' : 'コピーに失敗しました。');
+                  const ok = await copyText(bulkTitles.join('\n'));
+                  setToast(ok ? 'タイトルをまとめてコピーしました。' : 'コピーに失敗しました。');
                 }}
                 sx={{ borderRadius: 999 }}
               >

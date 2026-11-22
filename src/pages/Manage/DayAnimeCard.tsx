@@ -28,7 +28,8 @@ interface Props {
 
 /**
  * 日単位ビュー共通の作品カード。
- * 時刻・タイトル・話数サブタイ・放送局、ハッシュタグコピー、
+ * 時刻・タイトル・話数サブタイ・放送局、タイトルコピー（note のタグ用）、
+ * ハッシュタグチップ（クリックで SNS 用にコピー）、
  * キャラクター／公式サイトへの即時リンク、視聴済みスイッチを持つ。
  * カード本体のクリックで情報更新ページ（/story/:tid）へ遷移する。
  */
@@ -72,10 +73,16 @@ const DayAnimeCard: React.FC<Props> = ({
     }
   };
 
+  // note のタグは作品タイトルそのままなので、コピーの主役はタイトル。
+  const handleCopyTitle = async () => {
+    const ok = await copyText(item.title);
+    notify(ok ? 'タイトルをコピーしました（note用）。' : 'コピーに失敗しました。');
+  };
+
   const handleCopyTag = async () => {
     if (!item.hashTag) return;
     const ok = await copyText(item.hashTag);
-    notify(ok ? 'ハッシュタグをコピーしました。' : 'コピーに失敗しました。');
+    notify(ok ? 'ハッシュタグをコピーしました（SNS用）。' : 'コピーに失敗しました。');
   };
 
   const stop = (e: React.SyntheticEvent) => e.stopPropagation();
@@ -119,23 +126,34 @@ const DayAnimeCard: React.FC<Props> = ({
           <Stack direction="row" spacing={0.75} sx={{ alignItems: 'center', flexWrap: 'wrap', marginTop: 0.5 }}>
             {item.chName && <Chip label={item.chName} size="small" variant="outlined" />}
             {item.hashTag && (
-              <>
-                <Chip label={item.hashTag} size="small" color="secondary" variant="outlined" sx={{ maxWidth: '100%' }} />
-                <Tooltip title="ハッシュタグをコピー">
-                  <IconButton
-                    size="small"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleCopyTag();
-                    }}
-                    aria-label="ハッシュタグをコピー"
-                    sx={{ padding: 0.25 }}
-                  >
-                    <ContentCopyIcon fontSize="small" />
-                  </IconButton>
-                </Tooltip>
-              </>
+              <Tooltip title="SNS用ハッシュタグをコピー">
+                <Chip
+                  label={item.hashTag}
+                  size="small"
+                  color="secondary"
+                  variant="outlined"
+                  clickable
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleCopyTag();
+                  }}
+                  sx={{ maxWidth: '100%' }}
+                />
+              </Tooltip>
             )}
+            <Tooltip title="タイトルをコピー（note用）">
+              <IconButton
+                size="small"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopyTitle();
+                }}
+                aria-label="タイトルをコピー（note用）"
+                sx={{ padding: 0.25 }}
+              >
+                <ContentCopyIcon fontSize="small" />
+              </IconButton>
+            </Tooltip>
           </Stack>
         </Box>
 
