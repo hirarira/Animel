@@ -1,4 +1,5 @@
 import React from "react";
+import { Link as RouterLink } from 'react-router-dom';
 import { Box, Button, Chip, Divider, Drawer, IconButton, Stack, Typography } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
@@ -90,6 +91,15 @@ const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
                 endIcon={<OpenInNewIcon />}
               >
                 しょぼいカレンダー
+              </Button>
+              {/* Animel 内の既読管理ページ（パイロット）。従来の SMA ページと並行運用する */}
+              <Button
+                variant="contained"
+                component={RouterLink}
+                to={review ? `/story/${review.tid}` : '/'}
+                onClick={props.onClose}
+              >
+                既読管理（Animel内）
               </Button>
               <Button
                 variant="outlined"

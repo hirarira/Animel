@@ -1,13 +1,19 @@
 import React from "react";
-import { AppBar, IconButton, Menu, MenuItem, Toolbar, Typography, useColorScheme } from '@mui/material';
+import { AppBar, Button, IconButton, Menu, MenuItem, Toolbar, Typography, useColorScheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import { useAuth } from '../auth/AuthContext';
+import GoogleSignInButton from '../auth/GoogleSignInButton';
 
-// ログイン機能と管理ページ（showMinogashiAnime）へのリンクは Phase 1 で撤去済み。
+// Google サインインは Stage 2 の既読管理パイロットで再導入した。
+// サインインは管理操作（書き込み系 API の Bearer 認証）のためだけに使う。
 const Header: React.FC = (() => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [accountAnchorEl, setAccountAnchorEl] = React.useState<null | HTMLElement>(null);
   const { mode, systemMode, setMode } = useColorScheme();
+  const { auth, isSignedIn, signOut } = useAuth();
   const resolvedMode = mode === 'system' ? systemMode : mode;
   const isDark = resolvedMode === 'dark';
   const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -33,6 +39,39 @@ const Header: React.FC = (() => {
         >
           {isDark ? <Brightness7Icon /> : <Brightness4Icon />}
         </IconButton>
+        {isSignedIn ? (
+          <>
+            <Button
+              color="inherit"
+              size="small"
+              startIcon={<AccountCircleIcon />}
+              onClick={(event) => setAccountAnchorEl(event.currentTarget)}
+              sx={{ textTransform: 'none', marginLeft: 1, maxWidth: { xs: 140, sm: 260 } }}
+            >
+              <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                {auth?.email}
+              </span>
+            </Button>
+            <Menu
+              anchorEl={accountAnchorEl}
+              open={Boolean(accountAnchorEl)}
+              onClose={() => setAccountAnchorEl(null)}
+            >
+              <MenuItem
+                onClick={() => {
+                  setAccountAnchorEl(null);
+                  signOut();
+                }}
+              >
+                サインアウト
+              </MenuItem>
+            </Menu>
+          </>
+        ) : (
+          <span style={{ marginLeft: 8 }}>
+            <GoogleSignInButton />
+          </span>
+        )}
       </Toolbar>
     </AppBar>
     <Menu
