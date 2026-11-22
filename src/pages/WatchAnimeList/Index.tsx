@@ -166,15 +166,35 @@ const WatchAnimeList: React.FC = (()=>{
     setGetAllFlag(true);
   }
 
+  const getSearch = async () => {
+    const query = searchText.trim();
+    if (query.length < 2) {
+      setError('検索は2文字以上で入力してください。');
+      return;
+    }
+    switchLoading(true);
+    try {
+      const reviewList: AnimeReview[] = await getAnimeReview.searchAnime(query);
+      setAnimeReviewList(formatReviewData(reviewList));
+      setError(null);
+    } catch (e) {
+      setError(e instanceof Error && e.message ? e.message : 'アニメデータの取得に失敗しました。時間をおいて再試行してください。');
+    } finally {
+      switchLoading(false);
+    }
+    setGetAllFlag(true);
+  };
+
   const handleModeChange = (newMode: FilterMode) => {
     setMode(newMode);
     if (newMode === 'period') {
       getWatchDate();
     } else if (newMode === 'rate') {
       getRate(highRate, lowRate);
-    } else {
+    } else if (newMode === 'all') {
       getAll();
     }
+    // 'search' は入力待ち（Enter / 検索ボタンで getSearch を実行）
   };
 
   const handleYearChange = (year: string) => {
@@ -203,11 +223,13 @@ const WatchAnimeList: React.FC = (()=>{
   };
 
   // タイトル検索で絞り込んだ表示用リスト
+  // （search モードではサーバー側で絞り込み済みなので、そのまま表示する）
   const displayList = useMemo(() => {
+    if (mode === 'search') return animeReviewList;
     const keyword = searchText.trim().toLowerCase();
     if (!keyword) return animeReviewList;
     return animeReviewList.filter((review) => review.title.toLowerCase().includes(keyword));
-  }, [animeReviewList, searchText]);
+  }, [animeReviewList, searchText, mode]);
 
   const getTitile = () => {
     return (
@@ -264,6 +286,7 @@ const WatchAnimeList: React.FC = (()=>{
             onRankSelect={handleRankSelect}
             searchText={searchText}
             onSearchTextChange={setSearchText}
+            onSearchSubmit={getSearch}
             resultCount={displayList.length}
             totalCount={animeReviewList.length}
           />
@@ -294,7 +317,7 @@ const WatchAnimeList: React.FC = (()=>{
               severity="error"
               sx={{ margin: '0 10px 10px', textAlign: 'left' }}
               action={
-                <Button color="inherit" size="small" onClick={() => handleModeChange(mode)}>
+                <Button color="inherit" size="small" onClick={() => { if (mode === 'search') { getSearch(); } else { handleModeChange(mode); } }}>
                   再試行
                 </Button>
               }

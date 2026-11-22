@@ -1,12 +1,12 @@
 import React from "react";
 import {
-  Box, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Paper, Select,
+  Box, Button, Chip, FormControl, InputAdornment, InputLabel, MenuItem, Paper, Select,
   Slider, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import { rankList } from "./Index";
 
-export type FilterMode = 'period' | 'rate' | 'all';
+export type FilterMode = 'period' | 'rate' | 'all' | 'search';
 
 interface Props {
   mode: FilterMode;
@@ -23,6 +23,8 @@ interface Props {
   onRankSelect: (range: [number, number]) => void;
   // タイトル検索（取得済みデータへの絞り込み）
   searchText: string;
+  // サーバー検索の実行（search モードで Enter / ボタン押下時）
+  onSearchSubmit: () => void;
   onSearchTextChange: (text: string) => void;
   resultCount: number;
   totalCount: number;
@@ -76,12 +78,16 @@ const FilterBar: React.FC<Props> = ((props: Props) => {
             <ToggleButton value="period">期間</ToggleButton>
             <ToggleButton value="rate">評価</ToggleButton>
             <ToggleButton value="all">全件</ToggleButton>
+            <ToggleButton value="search">検索</ToggleButton>
           </ToggleButtonGroup>
           <TextField
             size="small"
-            placeholder="タイトルで絞り込み"
+            placeholder={props.mode === 'search' ? 'タイトルを検索（2文字以上）' : 'タイトルで絞り込み'}
             value={props.searchText}
             onChange={(e) => props.onSearchTextChange(e.target.value)}
+            onKeyDown={(e) => {
+              if (props.mode === 'search' && e.key === 'Enter') props.onSearchSubmit();
+            }}
             sx={{ flexGrow: 1, minWidth: '180px' }}
             slotProps={{
               input: {
@@ -183,6 +189,17 @@ const FilterBar: React.FC<Props> = ((props: Props) => {
           <Typography variant="body2" color="text.secondary">
             全期間の全件を表示しています（偏差値つき）。
           </Typography>
+        )}
+
+        {props.mode === 'search' && (
+          <Stack direction="row" spacing={1.5} useFlexGap sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="body2" color="text.secondary">
+              全作品の中からタイトル部分一致で検索します。上の入力欄に2文字以上入れて、Enter かボタンで検索してください。
+            </Typography>
+            <Button variant="contained" size="small" onClick={props.onSearchSubmit}>
+              検索する
+            </Button>
+          </Stack>
         )}
       </Stack>
     </Paper>
