@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Stack, Switch, TableCell, TableRow, TextField, Typography } from '@mui/material';
+import { Avatar, Box, Button, Chip, Paper, Stack, Switch, TextField, Typography } from '@mui/material';
 import { alpha, useTheme } from '@mui/material/styles';
 import { AnimeStory } from '../../data/AnimeStory';
 import { UnauthorizedError } from '../../data/getAnimeStory';
@@ -14,6 +14,11 @@ interface Props {
   onError: (message: string) => void;
 }
 
+/**
+ * 各話カード（モックの現代風デザインに合わせたカード型）。
+ * 話数バッジ・サブタイ・放送日・状態チップ＋スイッチ・コメント編集を持つ。
+ * 保存ボタンは変更がある時だけ目立つ（contained）表示にする。
+ */
 const EpisodeRow: React.FC<Props> = ({ story, canEdit, onSave, onUnauthorized, onError }) => {
   const theme = useTheme();
   const [minogashi, setMinogashi] = useState<number>(story.minogashi);
@@ -29,6 +34,7 @@ const EpisodeRow: React.FC<Props> = ({ story, canEdit, onSave, onUnauthorized, o
     : '';
   const subTitle = story.subTitle ? story.subTitle : '（サブタイなし）';
   const commentDirty = comment !== savedComment;
+  const watched = minogashi === 1;
 
   const handleFailure = (e: unknown, rollback: () => void) => {
     rollback();
@@ -68,59 +74,86 @@ const EpisodeRow: React.FC<Props> = ({ story, canEdit, onSave, onUnauthorized, o
   };
 
   return (
-    <TableRow
-      sx={
-        minogashi === 0
-          ? { backgroundColor: alpha(theme.palette.error.main, theme.palette.mode === 'dark' ? 0.16 : 0.07) }
-          : undefined
-      }
+    <Paper
+      elevation={0}
+      sx={{
+        border: '1px solid',
+        borderColor: 'divider',
+        borderRadius: 4,
+        padding: '12px 16px',
+        ...(!watched
+          ? { backgroundColor: alpha(theme.palette.error.main, theme.palette.mode === 'dark' ? 0.13 : 0.05) }
+          : {}),
+      }}
     >
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>{story.count}</TableCell>
-      <TableCell>{subTitle}</TableCell>
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>{broadcastDate}</TableCell>
-      <TableCell sx={{ minWidth: 220 }}>
-        {canEdit ? (
-          <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
-            <TextField
-              value={comment}
-              onChange={(e) => setComment(e.target.value)}
-              size="small"
-              multiline
-              maxRows={4}
-              fullWidth
-              placeholder="コメント"
-              disabled={saving}
-            />
-            <Button
-              variant="outlined"
-              size="small"
-              onClick={handleSaveComment}
-              disabled={!commentDirty || saving}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              保存
-            </Button>
+      <Stack direction="row" spacing={1.5} sx={{ alignItems: 'flex-start' }}>
+        <Avatar
+          sx={{
+            width: 38,
+            height: 38,
+            fontSize: 15,
+            fontWeight: 700,
+            bgcolor: watched ? 'primary.main' : 'action.disabledBackground',
+            color: watched ? 'primary.contrastText' : 'text.secondary',
+            flexShrink: 0,
+          }}
+        >
+          {story.count}
+        </Avatar>
+
+        <Box sx={{ flexGrow: 1, minWidth: 0 }}>
+          <Stack direction="row" spacing={1} sx={{ alignItems: 'center', flexWrap: 'wrap' }}>
+            <Typography variant="subtitle2" sx={{ fontWeight: 700 }}>
+              {subTitle}
+            </Typography>
+            {broadcastDate && (
+              <Typography variant="caption" color="text.secondary">
+                {broadcastDate} 放送
+              </Typography>
+            )}
+            <Chip label={watched ? '視聴済み' : '見逃し'} size="small" color={watched ? 'success' : 'error'} />
           </Stack>
-        ) : (
-          <Typography variant="body2" color={comment ? 'text.primary' : 'text.secondary'}>
-            {comment ? comment : '（コメントなし）'}
-          </Typography>
-        )}
-      </TableCell>
-      <TableCell sx={{ whiteSpace: 'nowrap' }}>
-        <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center' }}>
-          <Switch
-            checked={minogashi === 1}
-            onChange={(e) => handleToggle(e.target.checked)}
-            disabled={!canEdit || saving}
-            slotProps={{ input: { 'aria-label': '見逃しチェック' } }}
-          />
-          <Typography variant="caption" color={minogashi === 0 ? 'error' : 'text.secondary'}>
-            {minogashi === 0 ? '見逃し' : '視聴済み'}
-          </Typography>
-        </Stack>
-      </TableCell>
-    </TableRow>
+
+          <Box sx={{ marginTop: 1 }}>
+            {canEdit ? (
+              <Stack direction="row" spacing={1} sx={{ alignItems: 'flex-start' }}>
+                <TextField
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  size="small"
+                  multiline
+                  maxRows={4}
+                  fullWidth
+                  placeholder="コメント"
+                  disabled={saving}
+                />
+                <Button
+                  variant={commentDirty ? 'contained' : 'outlined'}
+                  size="small"
+                  onClick={handleSaveComment}
+                  disabled={!commentDirty || saving}
+                  sx={{ whiteSpace: 'nowrap', borderRadius: 999 }}
+                >
+                  保存
+                </Button>
+              </Stack>
+            ) : (
+              <Typography variant="body2" color={comment ? 'text.primary' : 'text.secondary'}>
+                {comment ? comment : '（コメントなし）'}
+              </Typography>
+            )}
+          </Box>
+        </Box>
+
+        <Switch
+          checked={watched}
+          onChange={(e) => handleToggle(e.target.checked)}
+          disabled={!canEdit || saving}
+          slotProps={{ input: { 'aria-label': '見逃しチェック' } }}
+          sx={{ flexShrink: 0 }}
+        />
+      </Stack>
+    </Paper>
   );
 };
 
