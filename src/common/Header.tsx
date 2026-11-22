@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from 'react-router-dom';
-import { AppBar, Button, Divider, IconButton, Menu, MenuItem, Toolbar, Typography, useColorScheme } from '@mui/material';
+import { Alert, AppBar, Button, Divider, IconButton, Menu, MenuItem, Snackbar, Toolbar, Typography, useColorScheme } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import Brightness4Icon from '@mui/icons-material/Brightness4';
 import Brightness7Icon from '@mui/icons-material/Brightness7';
@@ -16,7 +16,7 @@ const Header: React.FC = (() => {
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [accountAnchorEl, setAccountAnchorEl] = React.useState<null | HTMLElement>(null);
   const { mode, systemMode, setMode } = useColorScheme();
-  const { auth, isSignedIn, signOut } = useAuth();
+  const { auth, isSignedIn, signOut, notice, clearNotice } = useAuth();
   const navigate = useNavigate();
   const resolvedMode = mode === 'system' ? systemMode : mode;
   const isDark = resolvedMode === 'dark';
@@ -129,6 +129,16 @@ const Header: React.FC = (() => {
         window.location.href = 'https://twitter.com/hirarira617/';
       }}>Twitterに戻る</MenuItem>
     </Menu>
+    <Snackbar
+      open={Boolean(notice)}
+      autoHideDuration={6000}
+      onClose={clearNotice}
+      anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+    >
+      <Alert severity="warning" variant="filled" onClose={clearNotice}>
+        {notice}
+      </Alert>
+    </Snackbar>
     </>
   )
 });
