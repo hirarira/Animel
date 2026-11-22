@@ -4,6 +4,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import HistoryIcon from '@mui/icons-material/History';
+import ListIcon from '@mui/icons-material/List';
 
 /**
  * 管理画面共通のサブナビゲーション。
@@ -49,6 +50,16 @@ const ManageNav: React.FC = () => {
           sx={{ borderRadius: 999 }}
         >
           見逃し（過去1週間）
+        </Button>
+        <Box sx={{ flexGrow: 1 }} />
+        <Button
+          variant="text"
+          size="small"
+          startIcon={<ListIcon />}
+          onClick={() => navigate('/')}
+          sx={{ borderRadius: 999 }}
+        >
+          アニメリストに戻る
         </Button>
       </Stack>
     </Box>

@@ -33,7 +33,12 @@ const Header: React.FC = (() => {
         <IconButton edge="start" color="inherit" aria-label="menu" onClick={handleClick}>
           <MenuIcon />
         </IconButton>
-        <Typography variant="h6" component="div" sx={{ flexGrow: 1, textAlign: 'left' }}>
+        <Typography
+          variant="h6"
+          component="div"
+          onClick={() => navigate('/')}
+          sx={{ flexGrow: 1, textAlign: 'left', cursor: 'pointer' }}
+        >
           視聴したアニメリスト
         </Typography>
         {/* 管理画面への導線は公開一覧とは分ける（モック準拠）。
