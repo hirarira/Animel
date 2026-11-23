@@ -557,7 +557,7 @@ const StoryList: React.FC = () => {
   const handleSaveStory = useCallback(
     async (count: number, minogashi: number, comment: string) => {
       if (!auth || !tid) throw new Error('not signed in');
-      await storyApi.setAnimeStory(auth.idToken, {
+      await storyApi.setAnimeStory(auth.token, {
         tid: Number(tid),
         count,
         minogashi,
@@ -572,7 +572,7 @@ const StoryList: React.FC = () => {
     async (options: { rate: number; comment: string; watchDate: string }) => {
       if (!auth || !tid) return;
       try {
-        await dayApi.setAnimeReview(auth.idToken, { tid: Number(tid), ...options });
+        await dayApi.setAnimeReview(auth.token, { tid: Number(tid), ...options });
         setReview((prev) => (prev ? { ...prev, ...options } : { tid: Number(tid), title: '', chName: '', url: '', hashTag: '', characterURL: '', publicURL: '', ...options }));
         setToast('クール・評価・コメントを保存しました。');
       } catch (e) {
@@ -587,7 +587,7 @@ const StoryList: React.FC = () => {
     async (status: ViewStatus) => {
       if (!auth || !tid) return;
       try {
-        await dayApi.setAnimeStatus(auth.idToken, { tid: Number(tid), status });
+        await dayApi.setAnimeStatus(auth.token, { tid: Number(tid), status });
         setReview((prev) =>
           prev
             ? { ...prev, status }
@@ -618,7 +618,7 @@ const StoryList: React.FC = () => {
     async (options: { hashTag: string; characterURL: string; publicURL: string }) => {
       if (!auth || !tid) return;
       try {
-        await dayApi.setAnimeAbout(auth.idToken, { tid: Number(tid), ...options });
+        await dayApi.setAnimeAbout(auth.token, { tid: Number(tid), ...options });
         setData((prev) => (prev ? { ...prev, about: { ...prev.about, ...options } } : prev));
         setToast('ハッシュタグ・リンクを保存しました。');
       } catch (e) {
@@ -633,7 +633,7 @@ const StoryList: React.FC = () => {
     async (dataBase64: string) => {
       if (!auth || !tid) return;
       try {
-        const fileName = await dayApi.setAnimeThumbnail(auth.idToken, { tid: Number(tid), dataBase64 });
+        const fileName = await dayApi.setAnimeThumbnail(auth.token, { tid: Number(tid), dataBase64 });
         setData((prev) => (prev ? { ...prev, about: { ...prev.about, thumbnail: fileName } } : prev));
         const refreshed = await dayApi.getAnimeReview(tid);
         setReview(refreshed);
@@ -649,7 +649,7 @@ const StoryList: React.FC = () => {
   const handleDeleteThumbnail = useCallback(async () => {
     if (!auth || !tid) return;
     try {
-      await dayApi.deleteAnimeThumbnail(auth.idToken, { tid: Number(tid) });
+      await dayApi.deleteAnimeThumbnail(auth.token, { tid: Number(tid) });
       setData((prev) => (prev ? { ...prev, about: { ...prev.about, thumbnail: null } } : prev));
       const refreshed = await dayApi.getAnimeReview(tid);
       setReview(refreshed);
@@ -664,7 +664,7 @@ const StoryList: React.FC = () => {
     if (!auth || !tid) return;
     setFetching(true);
     try {
-      const result = await storyApi.getNoRegistStories(auth.idToken, tid);
+      const result = await storyApi.getNoRegistStories(auth.token, tid);
       setToast(result.comment ? `番組情報を取得しました：${result.comment}` : '番組情報を取得しました。');
       await load();
     } catch (e) {

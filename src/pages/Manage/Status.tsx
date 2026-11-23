@@ -89,7 +89,7 @@ const ManageStatus: React.FC = () => {
       if (!auth || next === tab) return;
       setSavingTid(item.tid);
       try {
-        await api.setAnimeStatus(auth.idToken, { tid: item.tid, status: next });
+        await api.setAnimeStatus(auth.token, { tid: item.tid, status: next });
         setLists((prev) => {
           const copy: Partial<Record<ViewStatus, StatusAnimeItem[]>> = { ...prev };
           copy[tab] = (copy[tab] ?? []).filter((a) => a.tid !== item.tid);

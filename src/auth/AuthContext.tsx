@@ -1,11 +1,14 @@
 import React, { createContext, useCallback, useContext, useMemo, useRef, useState } from 'react';
 
 // Google Identity Services（GIS）によるサインイン基盤。
-// ID トークンは SMA バックエンドの書き込み系 API（Bearer 認証）に使う。
-// トークンは sessionStorage に保存し、有効期限内なら再読み込みしても復元する。
+// サインイン時に Google ID トークン（有効期限1時間）を SMA バックエンドへ送って
+// サーバー発行のセッショントークン（有効期間30日）と交換し、以降の書き込み系 API では
+// セッショントークンを Bearer として使う。
+// セッションは localStorage に保存し、新しいタブやブラウザ再起動でも復元する。
 
 export interface GoogleAuth {
-  idToken: string;
+  /** SMA バックエンドのセッショントークン（書き込み系 API の Bearer） */
+  token: string;
   email: string;
   /** 有効期限（Unix ミリ秒） */
   expiresAt: number;
@@ -34,7 +37,11 @@ const AuthContext = createContext<AuthContextValue>({
   clearNotice: () => {},
 });
 
-const STORAGE_KEY = 'animel.googleAuth';
+const STORAGE_KEY = 'animel.session';
+// 旧方式（sessionStorage に Google ID トークンを保存）のキー。移行時に掃除する。
+const LEGACY_STORAGE_KEY = 'animel.googleAuth';
+
+const SESSION_ENDPOINT = 'https://pollux.hirarira.net/showMinogashiAnime/api/session';
 
 // 管理機能を使える Google アカウント（サーバー側の ANIME_GOOGLE_ALLOWED_EMAIL と対）。
 // ここでのチェックは表示・導線の制御用で、書き込みの最終的な拒否はサーバー側が行う。
@@ -66,17 +73,19 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
 
 function loadStoredAuth(): GoogleAuth | null {
   try {
-    const raw = sessionStorage.getItem(STORAGE_KEY);
+    // 旧方式の保存が残っていたら掃除する（セッショントークンとは互換がない）
+    sessionStorage.removeItem(LEGACY_STORAGE_KEY);
+    const raw = localStorage.getItem(STORAGE_KEY);
     if (!raw) return null;
     const parsed = JSON.parse(raw) as GoogleAuth;
     // 期限切れ（30秒の余裕を見る）なら復元しない
-    if (!parsed.idToken || !parsed.expiresAt || parsed.expiresAt < Date.now() + 30_000) {
-      sessionStorage.removeItem(STORAGE_KEY);
+    if (!parsed.token || !parsed.expiresAt || parsed.expiresAt < Date.now() + 30_000) {
+      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
     // 許可外アカウントの保存済みセッションは復元しない
     if (!parsed.email || !isAllowedEmail(parsed.email)) {
-      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
       return null;
     }
     return parsed;
@@ -91,7 +100,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const clearNotice = useCallback(() => setNotice(null), []);
 
-  const handleCredential = useCallback((credential: string) => {
+  const handleCredential = useCallback(async (credential: string) => {
     const payload = decodeJwtPayload(credential);
     if (!payload) return;
     const email = typeof payload.email === 'string' ? payload.email : '';
@@ -100,23 +109,39 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setNotice(`このGoogleアカウント（${email || 'メールアドレス不明'}）では管理機能を利用できません`);
       return;
     }
-    const next: GoogleAuth = {
-      idToken: credential,
-      email,
-      expiresAt: typeof payload.exp === 'number' ? payload.exp * 1000 : Date.now(),
-    };
+    // Google ID トークンをサーバー発行のセッショントークン（30日）に交換する
     try {
-      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      const response = await fetch(SESSION_ENDPOINT, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${credential}` },
+      });
+      if (!response.ok) throw new Error('session request failed: ' + response.status);
+      const data = (await response.json()) as {
+        status: string;
+        body: { sessionToken: string; email: string; expiresAt: number };
+      };
+      if (data.status !== 'ok' || !data.body?.sessionToken) throw new Error('invalid session response');
+      const next: GoogleAuth = {
+        token: data.body.sessionToken,
+        email: data.body.email || email,
+        expiresAt: data.body.expiresAt,
+      };
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+      } catch {
+        // 保存できなくてもメモリ上の状態ではサインイン扱いにする
+      }
+      setNotice(null);
+      setAuth(next);
     } catch {
-      // 保存できなくてもメモリ上の状態ではサインイン扱いにする
+      setNotice('セッションの作成に失敗しました。時間をおいて再度サインインしてください。');
     }
-    setNotice(null);
-    setAuth(next);
   }, []);
 
   const clear = useCallback(() => {
     try {
-      sessionStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_KEY);
+      sessionStorage.removeItem(LEGACY_STORAGE_KEY);
     } catch {
       // ignore
     }

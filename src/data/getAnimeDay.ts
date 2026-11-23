@@ -11,7 +11,7 @@ export const THUMBNAIL_BASE_URL = 'https://pollux.hirarira.net/showMinogashiAnim
 
 /**
  * 管理画面（日単位ビュー / 週間見逃し / 情報更新）用 API。
- * 読み取りは公開、書き込みは Google ID トークン（Bearer）が必須。
+ * 読み取りは公開、書き込みはセッショントークン（Bearer）が必須。
  */
 export class GetAnimeDay {
   host: string;
@@ -62,13 +62,13 @@ export class GetAnimeDay {
 
   /** レビュー（クール設定・評価・コメント）を保存する（要 Bearer 認証） */
   async setAnimeReview(
-    idToken: string,
+    token: string,
     options: { tid: number; rate: number; comment: string; watchDate: string }
   ): Promise<void> {
     const path = `/showMinogashiAnime/api/setAnimeReview`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeReview failed: ' + JSON.stringify(response.data));
@@ -94,13 +94,13 @@ export class GetAnimeDay {
 
   /** 視聴ステータスを保存する（要 Bearer 認証。レビュー行が無ければ作られる） */
   async setAnimeStatus(
-    idToken: string,
+    token: string,
     options: { tid: number; status: ViewStatus }
   ): Promise<void> {
     const path = `/showMinogashiAnime/api/setAnimeStatus`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeStatus failed: ' + JSON.stringify(response.data));
@@ -117,13 +117,13 @@ export class GetAnimeDay {
    * 戻り値は保存されたファイル名。
    */
   async setAnimeThumbnail(
-    idToken: string,
+    token: string,
     options: { tid: number; dataBase64: string }
   ): Promise<string> {
     const path = `/showMinogashiAnime/api/setAnimeThumbnail`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeThumbnail failed: ' + JSON.stringify(response.data));
@@ -136,11 +136,11 @@ export class GetAnimeDay {
   }
 
   /** サムネイル画像を削除する（要 Bearer 認証） */
-  async deleteAnimeThumbnail(idToken: string, options: { tid: number }): Promise<void> {
+  async deleteAnimeThumbnail(token: string, options: { tid: number }): Promise<void> {
     const path = `/showMinogashiAnime/api/deleteAnimeThumbnail`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('deleteAnimeThumbnail failed: ' + JSON.stringify(response.data));
@@ -153,13 +153,13 @@ export class GetAnimeDay {
 
   /** 概要（ハッシュタグ・公式サイト・キャラクターページ）を保存する（要 Bearer 認証） */
   async setAnimeAbout(
-    idToken: string,
+    token: string,
     options: { tid: number; hashTag: string; characterURL: string; publicURL: string }
   ): Promise<void> {
     const path = `/showMinogashiAnime/api/setAnimeAbout`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeAbout failed: ' + JSON.stringify(response.data));
