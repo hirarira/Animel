@@ -15,7 +15,7 @@ function isUnauthorized(e: unknown): boolean {
 
 /**
  * 既読管理（話数リスト）用 API。
- * 読み取りは公開、書き込みは Google ID トークン（Bearer）が必須。
+ * 読み取りは公開、書き込みはセッショントークン（Bearer）が必須。
  */
 export class GetAnimeStory {
   host: string;
@@ -43,13 +43,13 @@ export class GetAnimeStory {
    * setAnimeStory は minogashi と comment の両方を上書きするので、常に両方送る。
    */
   async setAnimeStory(
-    idToken: string,
+    token: string,
     options: { tid: number; count: number; minogashi: number; comment: string }
   ): Promise<void> {
     const path = `/showMinogashiAnime/api/setAnimeStory`;
     try {
       const response = await this.instance.post(path, options, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeStory failed: ' + JSON.stringify(response.data));
@@ -64,11 +64,11 @@ export class GetAnimeStory {
    * 未登録の話数をしょぼいカレンダーから取得して登録する（要 Bearer 認証）。
    * レスポンスは {status, comment, regStories, date} 形式（body ラップなし）。
    */
-  async getNoRegistStories(idToken: string, tid: string | number): Promise<{ status: string; comment: string }> {
+  async getNoRegistStories(token: string, tid: string | number): Promise<{ status: string; comment: string }> {
     const path = `/showMinogashiAnime/api/getNoRegistStories/${tid}`;
     try {
       const response = await this.instance.post(path, null, {
-        headers: { Authorization: `Bearer ${idToken}` },
+        headers: { Authorization: `Bearer ${token}` },
       });
       return response.data as { status: string; comment: string };
     } catch (e) {

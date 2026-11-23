@@ -67,7 +67,7 @@ const Week: React.FC = () => {
   const handleSaveWatched = useCallback(
     async (item: DayAnimeItem, minogashi: number) => {
       if (!auth) throw new Error('not signed in');
-      await storyApi.setAnimeStory(auth.idToken, {
+      await storyApi.setAnimeStory(auth.token, {
         tid: item.tid,
         count: item.count,
         minogashi,
