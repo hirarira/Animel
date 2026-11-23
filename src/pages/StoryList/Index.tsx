@@ -23,6 +23,8 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
+import UploadIcon from '@mui/icons-material/Upload';
+import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import PeopleIcon from '@mui/icons-material/People';
 import LanguageIcon from '@mui/icons-material/Language';
@@ -31,7 +33,7 @@ import { useAuth } from '../../auth/AuthContext';
 import { AnimeAbout, AnimeStoryList } from '../../data/AnimeStory';
 import { GetAnimeStory, UnauthorizedError } from '../../data/getAnimeStory';
 import { AnimeReviewDetail, VIEW_STATUSES, ViewStatus, viewStatusLabel } from '../../data/AnimeDay';
-import { GetAnimeDay } from '../../data/getAnimeDay';
+import { GetAnimeDay, THUMBNAIL_BASE_URL } from '../../data/getAnimeDay';
 import { rankList } from '../WatchAnimeList/Index';
 import EpisodeRow from './EpisodeRow';
 
@@ -335,6 +337,163 @@ const AboutForm: React.FC<AboutFormProps> = ({ about, canEdit, onSave }) => {
  * ハッシュタグ・リンク（setAnimeAbout）の編集、番組情報の取得を1ページにまとめる。
  * 読み取りは公開。編集は Google サインイン（Bearer 認証）が必要。
  */
+const THUMB_MAX_SIDE = 800;
+const THUMB_PASSTHROUGH_SIZE = 1024 * 1024;
+
+/**
+ * アップロード用に画像を整える。
+ * 大きい画像は長辺800pxまで縮小して WebP（品質0.85）に変換し、
+ * 小さい画像はそのまま base64 化する（サーバー側の上限は 4MB）。
+ */
+async function fileToUploadBase64(file: File): Promise<string> {
+  const blobToBase64 = (blob: Blob) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1] ?? '');
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) {
+    // 寸法が取れない形式はそのまま送る（形式判定はサーバー側で行われる）
+    return blobToBase64(file);
+  }
+  const maxSide = Math.max(bitmap.width, bitmap.height);
+  if (maxSide <= THUMB_MAX_SIDE && file.size <= THUMB_PASSTHROUGH_SIZE) {
+    bitmap.close();
+    return blobToBase64(file);
+  }
+  const scale = Math.min(1, THUMB_MAX_SIDE / maxSide);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    bitmap.close();
+    return blobToBase64(file);
+  }
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.85));
+  return blobToBase64(blob ?? file);
+}
+
+interface ThumbnailFormProps {
+  thumbnailUrl: string | null;
+  canEdit: boolean;
+  onUpload: (dataBase64: string) => Promise<void>;
+  onDelete: () => Promise<void>;
+}
+
+/** サムネイル画像の登録・差し替え・削除（setAnimeThumbnail / deleteAnimeThumbnail） */
+const ThumbnailForm: React.FC<ThumbnailFormProps> = ({ thumbnailUrl, canEdit, onUpload, onDelete }) => {
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleFile = async (file: File | undefined) => {
+    if (!file) return;
+    setError(null);
+    if (!file.type.startsWith('image/')) {
+      setError('画像ファイルを選んでください。');
+      return;
+    }
+    setBusy(true);
+    try {
+      const dataBase64 = await fileToUploadBase64(file);
+      // 縮小してもサーバー上限（4MB）を超える場合だけ弾く（通常は起こらない）
+      if (dataBase64.length * 0.75 > 4 * 1024 * 1024) {
+        setError('画像が大きすぎます。別の画像でお試しください。');
+        return;
+      }
+      await onUpload(dataBase64);
+    } catch {
+      // エラーメッセージは親側で表示する
+    } finally {
+      setBusy(false);
+      if (inputRef.current) inputRef.current.value = '';
+    }
+  };
+
+  const handleDelete = async () => {
+    setBusy(true);
+    setError(null);
+    try {
+      await onDelete();
+    } catch {
+      // エラーメッセージは親側で表示する
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 5, padding: 2.5, marginBottom: 2 }}>
+      <Typography variant="h6" component="h2" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+        サムネイル
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2 }}>
+        公開一覧に表示される画像です。対応形式は jpg / png / webp / gif。大きい画像は自動で長辺800pxに縮小して軽量化してから保存します。登録すると即反映されます。
+      </Typography>
+      {thumbnailUrl ? (
+        <Box sx={{ marginBottom: 2 }}>
+          <img
+            src={thumbnailUrl}
+            alt="現在のサムネイル"
+            style={{ maxWidth: 320, width: '100%', borderRadius: 12, display: 'block' }}
+          />
+        </Box>
+      ) : (
+        <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2 }}>
+          未登録です（公開一覧では従来のサムネイル対応表が使われます）。
+        </Typography>
+      )}
+      <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', alignItems: 'center' }}>
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<UploadIcon />}
+          disabled={!canEdit || busy}
+          onClick={() => inputRef.current?.click()}
+          sx={{ borderRadius: 999 }}
+        >
+          {thumbnailUrl ? '画像を差し替える' : '画像を選ぶ'}
+        </Button>
+        {thumbnailUrl && (
+          <Button
+            variant="outlined"
+            color="error"
+            size="small"
+            startIcon={<DeleteIcon />}
+            disabled={!canEdit || busy}
+            onClick={handleDelete}
+            sx={{ borderRadius: 999 }}
+          >
+            削除する
+          </Button>
+        )}
+        {busy && (
+          <Typography variant="caption" color="text.secondary">
+            保存中…
+          </Typography>
+        )}
+      </Stack>
+      <input
+        ref={inputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        hidden
+        onChange={(e) => handleFile(e.target.files?.[0])}
+      />
+      {error && (
+        <Typography variant="caption" color="error" sx={{ display: 'block', marginTop: 1 }}>
+          {error}
+        </Typography>
+      )}
+    </Paper>
+  );
+};
+
 const StoryList: React.FC = () => {
   const { tid } = useParams<{ tid: string }>();
   const navigate = useNavigate();
@@ -470,6 +629,37 @@ const StoryList: React.FC = () => {
     [dayApi, auth, tid, guardError]
   );
 
+  const handleUploadThumbnail = useCallback(
+    async (dataBase64: string) => {
+      if (!auth || !tid) return;
+      try {
+        const fileName = await dayApi.setAnimeThumbnail(auth.idToken, { tid: Number(tid), dataBase64 });
+        setData((prev) => (prev ? { ...prev, about: { ...prev.about, thumbnail: fileName } } : prev));
+        const refreshed = await dayApi.getAnimeReview(tid);
+        setReview(refreshed);
+        setToast('サムネイルを保存しました。');
+      } catch (e) {
+        guardError(e, 'サムネイルの保存に失敗しました。時間をおいて再試行してください。');
+        throw e;
+      }
+    },
+    [dayApi, auth, tid, guardError]
+  );
+
+  const handleDeleteThumbnail = useCallback(async () => {
+    if (!auth || !tid) return;
+    try {
+      await dayApi.deleteAnimeThumbnail(auth.idToken, { tid: Number(tid) });
+      setData((prev) => (prev ? { ...prev, about: { ...prev.about, thumbnail: null } } : prev));
+      const refreshed = await dayApi.getAnimeReview(tid);
+      setReview(refreshed);
+      setToast('サムネイルを削除しました。');
+    } catch (e) {
+      guardError(e, 'サムネイルの削除に失敗しました。時間をおいて再試行してください。');
+      throw e;
+    }
+  }, [dayApi, auth, tid, guardError]);
+
   const handleFetchNoRegist = async () => {
     if (!auth || !tid) return;
     setFetching(true);
@@ -588,6 +778,20 @@ const StoryList: React.FC = () => {
             />
             <ReviewForm key={`review-${tid}-${listVersion}`} tid={Number(tid)} review={review} canEdit={isSignedIn} onSave={handleSaveReview} />
             <AboutForm key={`about-${tid}-${listVersion}`} about={about} canEdit={isSignedIn} onSave={handleSaveAbout} />
+            <ThumbnailForm
+              key={`thumb-${tid}-${listVersion}`}
+              thumbnailUrl={
+                review?.thumbnail ??
+                (about.thumbnail
+                  ? about.thumbnail.startsWith('http')
+                    ? about.thumbnail
+                    : THUMBNAIL_BASE_URL + about.thumbnail
+                  : null)
+              }
+              canEdit={isSignedIn}
+              onUpload={handleUploadThumbnail}
+              onDelete={handleDeleteThumbnail}
+            />
 
             {/* 話数リスト */}
             <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 5, padding: 2.5, marginBottom: 2 }}>

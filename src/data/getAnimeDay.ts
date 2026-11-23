@@ -6,6 +6,9 @@ function isUnauthorized(e: unknown): boolean {
   return axios.isAxiosError(e) && e.response?.status === 401;
 }
 
+/** サムネイル配信のベース URL（API が返す thumbnail はこの配下の完全 URL） */
+export const THUMBNAIL_BASE_URL = 'https://pollux.hirarira.net/showMinogashiAnime/api/thumbnails/';
+
 /**
  * 管理画面（日単位ビュー / 週間見逃し / 情報更新）用 API。
  * 読み取りは公開、書き込みは Google ID トークン（Bearer）が必須。
@@ -101,6 +104,46 @@ export class GetAnimeDay {
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeStatus failed: ' + JSON.stringify(response.data));
+      }
+    } catch (e) {
+      if (isUnauthorized(e)) throw new UnauthorizedError();
+      throw e;
+    }
+  }
+
+  /**
+   * サムネイル画像を保存する（要 Bearer 認証）。
+   * 画像は base64 で送り、サーバー側でファイルとして保存される（DB にはファイル名だけ）。
+   * 戻り値は保存されたファイル名。
+   */
+  async setAnimeThumbnail(
+    idToken: string,
+    options: { tid: number; dataBase64: string }
+  ): Promise<string> {
+    const path = `/showMinogashiAnime/api/setAnimeThumbnail`;
+    try {
+      const response = await this.instance.post(path, options, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (response.data.status !== 'ok') {
+        throw new Error('setAnimeThumbnail failed: ' + JSON.stringify(response.data));
+      }
+      return response.data.thumbnail as string;
+    } catch (e) {
+      if (isUnauthorized(e)) throw new UnauthorizedError();
+      throw e;
+    }
+  }
+
+  /** サムネイル画像を削除する（要 Bearer 認証） */
+  async deleteAnimeThumbnail(idToken: string, options: { tid: number }): Promise<void> {
+    const path = `/showMinogashiAnime/api/deleteAnimeThumbnail`;
+    try {
+      const response = await this.instance.post(path, options, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (response.data.status !== 'ok') {
+        throw new Error('deleteAnimeThumbnail failed: ' + JSON.stringify(response.data));
       }
     } catch (e) {
       if (isUnauthorized(e)) throw new UnauthorizedError();

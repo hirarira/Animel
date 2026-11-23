@@ -41,6 +41,8 @@ export interface AnimeReviewDetail {
   comment: string;
   /** 視聴ステータス（旧データでは欠けることがある） */
   status?: ViewStatus;
+  /** サムネイル画像の配信URL（未登録なら null） */
+  thumbnail?: string | null;
 }
 
 /** 視聴ステータス（animeReview.status の値） */

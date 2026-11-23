@@ -6,6 +6,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import HistoryIcon from '@mui/icons-material/History';
 import ChecklistIcon from '@mui/icons-material/Checklist';
 import ListIcon from '@mui/icons-material/List';
+import ApiIcon from '@mui/icons-material/Api';
 
 /**
  * 管理画面共通のサブナビゲーション。
@@ -61,6 +62,18 @@ const ManageNav: React.FC = () => {
           sx={{ borderRadius: 999 }}
         >
           ステータス別一覧
+        </Button>
+        <Button
+          variant="outlined"
+          size="small"
+          startIcon={<ApiIcon />}
+          component="a"
+          href="https://pollux.hirarira.net/showMinogashiAnime/apidocs/"
+          target="_blank"
+          rel="noreferrer"
+          sx={{ borderRadius: 999 }}
+        >
+          APIドキュメント
         </Button>
         <Box sx={{ flexGrow: 1 }} />
         <Button
