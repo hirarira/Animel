@@ -122,6 +122,10 @@ const Header: React.FC = (() => {
             handleClose();
             navigate('/manage/status');
           }}>ステータス別一覧（管理用）</MenuItem>
+          <MenuItem onClick={()=>{
+            handleClose();
+            window.open('https://pollux.hirarira.net/showMinogashiAnime/apidocs/', '_blank', 'noreferrer');
+          }}>APIドキュメント（Swagger）</MenuItem>
           <Divider />
         </>
       )}

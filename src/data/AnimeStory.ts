@@ -7,6 +7,8 @@ export interface AnimeAbout {
   hashTag: string;
   characterURL: string;
   publicURL: string;
+  /** サムネイルのファイル名（未登録なら null。配信URLはレビュー結合形の thumbnail を使う） */
+  thumbnail?: string | null;
 }
 
 /** getAnimeStoryList の story（各話情報） */
