@@ -4,6 +4,7 @@ import { Box, Button, Stack, Typography } from '@mui/material';
 import LockIcon from '@mui/icons-material/Lock';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import HistoryIcon from '@mui/icons-material/History';
+import ChecklistIcon from '@mui/icons-material/Checklist';
 import ListIcon from '@mui/icons-material/List';
 
 /**
@@ -15,6 +16,7 @@ const ManageNav: React.FC = () => {
   const location = useLocation();
   const isToday = location.pathname.startsWith('/manage/today');
   const isWeek = location.pathname.startsWith('/manage/week');
+  const isStatus = location.pathname.startsWith('/manage/status');
 
   return (
     <Box
@@ -50,6 +52,15 @@ const ManageNav: React.FC = () => {
           sx={{ borderRadius: 999 }}
         >
           見逃し（過去1週間）
+        </Button>
+        <Button
+          variant={isStatus ? 'contained' : 'outlined'}
+          size="small"
+          startIcon={<ChecklistIcon />}
+          onClick={() => navigate('/manage/status')}
+          sx={{ borderRadius: 999 }}
+        >
+          ステータス別一覧
         </Button>
         <Box sx={{ flexGrow: 1 }} />
         <Button

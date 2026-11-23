@@ -118,6 +118,10 @@ const Header: React.FC = (() => {
             handleClose();
             navigate('/manage/week');
           }}>見逃し（過去1週間）（管理用）</MenuItem>
+          <MenuItem onClick={()=>{
+            handleClose();
+            navigate('/manage/status');
+          }}>ステータス別一覧（管理用）</MenuItem>
           <Divider />
         </>
       )}

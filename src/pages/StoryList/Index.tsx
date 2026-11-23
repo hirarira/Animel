@@ -30,7 +30,7 @@ import Header from '../../common/Header';
 import { useAuth } from '../../auth/AuthContext';
 import { AnimeAbout, AnimeStoryList } from '../../data/AnimeStory';
 import { GetAnimeStory, UnauthorizedError } from '../../data/getAnimeStory';
-import { AnimeReviewDetail } from '../../data/AnimeDay';
+import { AnimeReviewDetail, VIEW_STATUSES, ViewStatus, viewStatusLabel } from '../../data/AnimeDay';
 import { GetAnimeDay } from '../../data/getAnimeDay';
 import { rankList } from '../WatchAnimeList/Index';
 import EpisodeRow from './EpisodeRow';
@@ -170,14 +170,14 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ tid, review, canEdit, onSave })
             disabled={!canEdit || saving}
             onChange={(e) => {
               const v = Number(e.target.value);
-              if (!Number.isNaN(v)) setRate(Math.max(-4, Math.min(100, v)));
+              if (!Number.isNaN(v)) setRate(Math.max(0, Math.min(100, v)));
             }}
-            slotProps={{ htmlInput: { min: -4, max: 100, step: 1 } }}
+            slotProps={{ htmlInput: { min: 0, max: 100, step: 1 } }}
             sx={{ width: 90 }}
           />
         </Stack>
         <Typography variant="caption" color="text.secondary">
-          負の値は特殊評価（評価不能・詰み・視聴断念など）です。数値入力から直接指定できます。
+          0 は未評価です。詰み・視聴断念などの状態は視聴ステータスで管理します。
         </Typography>
       </Box>
 
@@ -207,6 +207,59 @@ const ReviewForm: React.FC<ReviewFormProps> = ({ tid, review, canEdit, onSave })
           </Typography>
         )}
       </Stack>
+    </Paper>
+  );
+};
+
+interface StatusFormProps {
+  status: ViewStatus;
+  canEdit: boolean;
+  onSave: (status: ViewStatus) => Promise<void>;
+}
+
+/** 視聴ステータスの選択（setAnimeStatus）。選んだ時点で即保存する */
+const StatusForm: React.FC<StatusFormProps> = ({ status, canEdit, onSave }) => {
+  const [saving, setSaving] = useState(false);
+
+  const handleChange = async (_: React.MouseEvent<HTMLElement>, value: ViewStatus | null) => {
+    if (!value || value === status) return;
+    setSaving(true);
+    try {
+      await onSave(value);
+    } catch {
+      // エラーメッセージは親側で表示する
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <Paper elevation={0} sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 5, padding: 2.5, marginBottom: 2 }}>
+      <Typography variant="h6" component="h2" sx={{ fontWeight: 700, marginBottom: 0.5 }}>
+        視聴ステータス
+      </Typography>
+      <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2 }}>
+        この作品の視聴状態です。選ぶとそのまま保存されます。まとめて振り分け直す場合は管理用の「ステータス別一覧」が便利です。
+      </Typography>
+      <ToggleButtonGroup
+        exclusive
+        size="small"
+        value={status}
+        onChange={handleChange}
+        disabled={!canEdit || saving}
+        sx={{ flexWrap: 'wrap' }}
+      >
+        {VIEW_STATUSES.map((s) => (
+          <ToggleButton key={s.key} value={s.key} sx={{ paddingX: 2 }}>
+            {s.label}
+          </ToggleButton>
+        ))}
+      </ToggleButtonGroup>
+      {saving && (
+        <Typography variant="caption" color="text.secondary" sx={{ marginLeft: 1 }}>
+          保存中…
+        </Typography>
+      )}
     </Paper>
   );
 };
@@ -371,6 +424,37 @@ const StoryList: React.FC = () => {
     [dayApi, auth, tid, guardError]
   );
 
+  const handleSaveStatus = useCallback(
+    async (status: ViewStatus) => {
+      if (!auth || !tid) return;
+      try {
+        await dayApi.setAnimeStatus(auth.idToken, { tid: Number(tid), status });
+        setReview((prev) =>
+          prev
+            ? { ...prev, status }
+            : {
+                tid: Number(tid),
+                title: '',
+                chName: '',
+                url: '',
+                hashTag: '',
+                characterURL: '',
+                publicURL: '',
+                watchDate: '',
+                rate: 0,
+                comment: '',
+                status,
+              }
+        );
+        setToast(`視聴ステータスを「${viewStatusLabel(status)}」に変更しました。`);
+      } catch (e) {
+        guardError(e, 'ステータスの保存に失敗しました。時間をおいて再試行してください。');
+        throw e;
+      }
+    },
+    [dayApi, auth, tid, guardError]
+  );
+
   const handleSaveAbout = useCallback(
     async (options: { hashTag: string; characterURL: string; publicURL: string }) => {
       if (!auth || !tid) return;
@@ -458,6 +542,7 @@ const StoryList: React.FC = () => {
                 {about.hashTag && <Chip label={about.hashTag} size="small" color="secondary" variant="outlined" />}
                 {review && review.rate !== 0 && <Chip label={`評価 ${review.rate}（${rankNameFor(review.rate)}）`} size="small" color="primary" variant="outlined" />}
                 {review?.watchDate && <Chip label={review.watchDate} size="small" variant="outlined" />}
+                {review && <Chip label={viewStatusLabel(review.status)} size="small" color="info" variant="outlined" />}
               </Stack>
               <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', marginBottom: 2 }}>
                 {about.characterURL && (
@@ -495,6 +580,12 @@ const StoryList: React.FC = () => {
               </Alert>
             )}
 
+            <StatusForm
+              key={`status-${tid}-${listVersion}`}
+              status={(review?.status as ViewStatus | undefined) ?? 'watched'}
+              canEdit={isSignedIn}
+              onSave={handleSaveStatus}
+            />
             <ReviewForm key={`review-${tid}-${listVersion}`} tid={Number(tid)} review={review} canEdit={isSignedIn} onSave={handleSaveReview} />
             <AboutForm key={`about-${tid}-${listVersion}`} about={about} canEdit={isSignedIn} onSave={handleSaveAbout} />
 
