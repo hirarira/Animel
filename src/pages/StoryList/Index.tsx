@@ -337,6 +337,47 @@ const AboutForm: React.FC<AboutFormProps> = ({ about, canEdit, onSave }) => {
  * ハッシュタグ・リンク（setAnimeAbout）の編集、番組情報の取得を1ページにまとめる。
  * 読み取りは公開。編集は Google サインイン（Bearer 認証）が必要。
  */
+const THUMB_MAX_SIDE = 800;
+const THUMB_PASSTHROUGH_SIZE = 1024 * 1024;
+
+/**
+ * アップロード用に画像を整える。
+ * 大きい画像は長辺800pxまで縮小して WebP（品質0.85）に変換し、
+ * 小さい画像はそのまま base64 化する（サーバー側の上限は 4MB）。
+ */
+async function fileToUploadBase64(file: File): Promise<string> {
+  const blobToBase64 = (blob: Blob) =>
+    new Promise<string>((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve((reader.result as string).split(',')[1] ?? '');
+      reader.onerror = () => reject(reader.error);
+      reader.readAsDataURL(blob);
+    });
+  const bitmap = await createImageBitmap(file).catch(() => null);
+  if (!bitmap) {
+    // 寸法が取れない形式はそのまま送る（形式判定はサーバー側で行われる）
+    return blobToBase64(file);
+  }
+  const maxSide = Math.max(bitmap.width, bitmap.height);
+  if (maxSide <= THUMB_MAX_SIDE && file.size <= THUMB_PASSTHROUGH_SIZE) {
+    bitmap.close();
+    return blobToBase64(file);
+  }
+  const scale = Math.min(1, THUMB_MAX_SIDE / maxSide);
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(bitmap.width * scale);
+  canvas.height = Math.round(bitmap.height * scale);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    bitmap.close();
+    return blobToBase64(file);
+  }
+  ctx.drawImage(bitmap, 0, 0, canvas.width, canvas.height);
+  bitmap.close();
+  const blob = await new Promise<Blob | null>((resolve) => canvas.toBlob(resolve, 'image/webp', 0.85));
+  return blobToBase64(blob ?? file);
+}
+
 interface ThumbnailFormProps {
   thumbnailUrl: string | null;
   canEdit: boolean;
@@ -357,19 +398,15 @@ const ThumbnailForm: React.FC<ThumbnailFormProps> = ({ thumbnailUrl, canEdit, on
       setError('画像ファイルを選んでください。');
       return;
     }
-    if (file.size > 4 * 1024 * 1024) {
-      setError('画像は4MBまでです。');
-      return;
-    }
     setBusy(true);
     try {
-      const dataUrl = await new Promise<string>((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result as string);
-        reader.onerror = () => reject(reader.error);
-        reader.readAsDataURL(file);
-      });
-      await onUpload(dataUrl.split(',')[1] ?? '');
+      const dataBase64 = await fileToUploadBase64(file);
+      // 縮小してもサーバー上限（4MB）を超える場合だけ弾く（通常は起こらない）
+      if (dataBase64.length * 0.75 > 4 * 1024 * 1024) {
+        setError('画像が大きすぎます。別の画像でお試しください。');
+        return;
+      }
+      await onUpload(dataBase64);
     } catch {
       // エラーメッセージは親側で表示する
     } finally {
@@ -396,7 +433,7 @@ const ThumbnailForm: React.FC<ThumbnailFormProps> = ({ thumbnailUrl, canEdit, on
         サムネイル
       </Typography>
       <Typography variant="body2" color="text.secondary" sx={{ marginBottom: 2 }}>
-        公開一覧に表示される画像です。対応形式は jpg / png / webp / gif、4MBまで。登録すると即反映されます。
+        公開一覧に表示される画像です。対応形式は jpg / png / webp / gif。大きい画像は自動で長辺800pxに縮小して軽量化してから保存します。登録すると即反映されます。
       </Typography>
       {thumbnailUrl ? (
         <Box sx={{ marginBottom: 2 }}>
