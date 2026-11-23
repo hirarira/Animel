@@ -1,0 +1,12 @@
+# SPA フォールバック: 実在するファイル/ディレクトリ以外へのアクセスは
+# index.html を返し、React Router 側でルーティングさせる。
+# （/Animel/manage/today 等の直接アクセス・ブックマークを有効にするため）
+# サムネイル等の実ファイルは !-f / !-d で今まで通り直接配信される。
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /Animel/
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . index.html [L]
+</IfModule>
