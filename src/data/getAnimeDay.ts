@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
-import { AnimeReviewDetail, DayAnimeItem } from './AnimeDay';
+import { AnimeReviewDetail, DayAnimeItem, StatusAnimeItem, ViewStatus } from './AnimeDay';
 import { UnauthorizedError } from './getAnimeStory';
 
 function isUnauthorized(e: unknown): boolean {
@@ -69,6 +69,38 @@ export class GetAnimeDay {
       });
       if (response.data.status !== 'ok') {
         throw new Error('setAnimeReview failed: ' + JSON.stringify(response.data));
+      }
+    } catch (e) {
+      if (isUnauthorized(e)) throw new UnauthorizedError();
+      throw e;
+    }
+  }
+
+  /** 指定した視聴ステータスのアニメ一覧を取得する */
+  async getAnimeByStatus(status: ViewStatus): Promise<StatusAnimeItem[]> {
+    const path = `/showMinogashiAnime/api/getAnimeByStatus/${status}`;
+    const response = await this.instance.get(path);
+    if (response.status !== 200) {
+      throw new Error('Response Status is ' + response.status);
+    }
+    if (response.data.status !== 'ok') {
+      throw new Error(response.data.body);
+    }
+    return response.data.body as StatusAnimeItem[];
+  }
+
+  /** 視聴ステータスを保存する（要 Bearer 認証。レビュー行が無ければ作られる） */
+  async setAnimeStatus(
+    idToken: string,
+    options: { tid: number; status: ViewStatus }
+  ): Promise<void> {
+    const path = `/showMinogashiAnime/api/setAnimeStatus`;
+    try {
+      const response = await this.instance.post(path, options, {
+        headers: { Authorization: `Bearer ${idToken}` },
+      });
+      if (response.data.status !== 'ok') {
+        throw new Error('setAnimeStatus failed: ' + JSON.stringify(response.data));
       }
     } catch (e) {
       if (isUnauthorized(e)) throw new UnauthorizedError();

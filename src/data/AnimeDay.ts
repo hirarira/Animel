@@ -39,4 +39,38 @@ export interface AnimeReviewDetail {
   /** 評価（0〜100、特殊値として負数もありうる） */
   rate: number;
   comment: string;
+  /** 視聴ステータス（旧データでは欠けることがある） */
+  status?: ViewStatus;
+}
+
+/** 視聴ステータス（animeReview.status の値） */
+export type ViewStatus = 'unwatched' | 'watching' | 'watched' | 'stalled' | 'dropped';
+
+/** ステータスの一覧（表示順）と日本語ラベル */
+export const VIEW_STATUSES: { key: ViewStatus; label: string }[] = [
+  { key: 'watched', label: '視聴済' },
+  { key: 'watching', label: '視聴中' },
+  { key: 'unwatched', label: '未視聴' },
+  { key: 'stalled', label: '詰み' },
+  { key: 'dropped', label: '視聴断念' },
+];
+
+export function viewStatusLabel(status: string | null | undefined): string {
+  const hit = VIEW_STATUSES.find((s) => s.key === status);
+  return hit ? hit.label : '視聴済';
+}
+
+/** getAnimeByStatus/:status の返す概要＋レビューのマージ結果（未視聴はレビュー側が欠ける） */
+export interface StatusAnimeItem {
+  tid: number;
+  title: string;
+  chName?: string;
+  url?: string;
+  hashTag?: string;
+  characterURL?: string;
+  publicURL?: string;
+  watchDate?: string;
+  rate?: number;
+  comment?: string;
+  status?: ViewStatus;
 }
