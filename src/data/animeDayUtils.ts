@@ -17,6 +17,12 @@ export function animeDayRangeMs(label: string): { start: number; end: number } {
   return { start, end: start + DAY_MS - 1000 };
 }
 
+/** ラベル日付のアニメ日の範囲を、しょぼいカレンダー API 形式（yyyyMMddHHmm・JST）で返す */
+export function animeDayRangeYmdHm(label: string): { start: string; end: string } {
+  const ymd = (l: string) => l.replace(/-/g, '');
+  return { start: `${ymd(label)}0500`, end: `${ymd(shiftDayLabel(label, 1))}0500` };
+}
+
 /** 現在時刻が属するアニメ日のラベル */
 export function currentAnimeDayLabel(now: Date = new Date()): string {
   const shifted = new Date(now.getTime() + JST_OFFSET_MS - ANIME_DAY_START_HOUR * 3600 * 1000);
