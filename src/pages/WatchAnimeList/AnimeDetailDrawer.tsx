@@ -16,10 +16,6 @@ interface Props {
 const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
   const review = props.review;
   const shoboiURL = review ? `https://cal.syoboi.jp/tid/${review.tid}` : '';
-  // 既読管理ページ（Basic認証あり）。URLは環境変数 VITE_MANAGEMENT_URL で差し替え可能
-  const managementBase = import.meta.env.VITE_MANAGEMENT_URL
-    ?? 'https://pollux.hirarira.net/showMinogashiAnime/showAnimeStoryList.html';
-  const managementURL = review ? `${managementBase}?tid=${review.tid}` : '';
   return (
     <Drawer anchor="right" open={review !== null} onClose={props.onClose}>
       <Box sx={{ width: { xs: '90vw', sm: 400 }, padding: '20px', textAlign: 'left' }} role="presentation">
@@ -92,21 +88,11 @@ const AnimeDetailDrawer: React.FC<Props> = ((props: Props) => {
               >
                 しょぼいカレンダー
               </Button>
-              {/* Animel 内の既読管理ページ（パイロット）。従来の SMA ページと並行運用する */}
               <Button
                 variant="contained"
                 component={RouterLink}
                 to={review ? `/story/${review.tid}` : '/'}
                 onClick={props.onClose}
-              >
-                既読管理（Animel内）
-              </Button>
-              <Button
-                variant="outlined"
-                href={managementURL}
-                target="_blank"
-                rel="noreferrer"
-                endIcon={<OpenInNewIcon />}
               >
                 既読管理
               </Button>

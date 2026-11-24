@@ -9,7 +9,6 @@ import {
   FormControl,
   InputLabel,
   LinearProgress,
-  Link,
   MenuItem,
   Paper,
   Select,
@@ -826,18 +825,6 @@ const StoryList: React.FC = () => {
                 ))}
               </Stack>
             </Paper>
-
-            <Typography variant="body2" color="text.secondary" sx={{ margin: '12px 0' }}>
-              従来の管理ページでも同じデータを編集できます：
-              <Link
-                href={`https://pollux.hirarira.net/showMinogashiAnime/showAnimeStoryList.html?tid=${tid}`}
-                target="_blank"
-                rel="noreferrer"
-                sx={{ marginLeft: 1 }}
-              >
-                SMA の既読管理ページ
-              </Link>
-            </Typography>
           </>
         )}
 

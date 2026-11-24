@@ -17,6 +17,7 @@ import {
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
+import CloudDownloadIcon from '@mui/icons-material/CloudDownload';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
@@ -28,10 +29,11 @@ import Header from '../../common/Header';
 import { useAuth } from '../../auth/AuthContext';
 import { DayAnimeItem } from '../../data/AnimeDay';
 import { GetAnimeDay } from '../../data/getAnimeDay';
-import { GetAnimeStory } from '../../data/getAnimeStory';
+import { GetAnimeStory, UnauthorizedError } from '../../data/getAnimeStory';
 import {
   animeDayLabelOf,
   animeDayRangeMs,
+  animeDayRangeYmdHm,
   copyText,
   currentAnimeDayLabel,
   formatDayLabel,
@@ -52,6 +54,7 @@ const Today: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [toast, setToast] = useState<string | null>(null);
+  const [fetching, setFetching] = useState(false);
   const [calAnchor, setCalAnchor] = useState<HTMLElement | null>(null);
   const [highlighted, setHighlighted] = useState<Set<string>>(new Set());
 
@@ -107,6 +110,27 @@ const Today: React.FC = () => {
     expireSession();
     setToast('認証の有効期限が切れました。再度サインインしてから操作してください。');
   }, [expireSession]);
+
+  // 選択中の日付のアニメを、しょぼいカレンダーから取り込む（旧 SMA の取得ボタンの移植）。
+  // しょぼい側に負荷をかけないため、1クリック＝1リクエストで自動リトライはしない。
+  const handleFetchShoboi = useCallback(async () => {
+    if (!auth || fetching) return;
+    setFetching(true);
+    try {
+      const { start, end } = animeDayRangeYmdHm(label);
+      const count = await dayApi.fetchShoboiAnimeAnyDay(auth.token, start, end);
+      setToast(`しょぼいカレンダーから ${count} 件取得しました。`);
+      await load(label);
+    } catch (e) {
+      if (e instanceof UnauthorizedError) {
+        handleUnauthorized();
+      } else {
+        setToast('しょぼいカレンダーからの取得に失敗しました。時間をおいて再度お試しください。');
+      }
+    } finally {
+      setFetching(false);
+    }
+  }, [auth, fetching, label, dayApi, load, handleUnauthorized]);
 
   const handleSaveWatched = useCallback(
     async (item: DayAnimeItem, minogashi: number) => {
@@ -191,6 +215,16 @@ const Today: React.FC = () => {
             sx={{ borderRadius: 999 }}
           >
             カレンダー
+          </Button>
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<CloudDownloadIcon />}
+            onClick={handleFetchShoboi}
+            disabled={!isSignedIn || fetching}
+            sx={{ borderRadius: 999 }}
+          >
+            {fetching ? '取得中…' : 'しょぼいから取得'}
           </Button>
           <Popover
             open={Boolean(calAnchor)}

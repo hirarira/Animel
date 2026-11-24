@@ -34,6 +34,31 @@ export class GetAnimeDay {
     return response.data.body as DayAnimeItem[];
   }
 
+  /**
+   * しょぼいカレンダーから指定範囲のアニメを取り込む（要 Bearer 認証）。
+   * start / end は JST の 'yyyyMMddHHmm'。戻り値は取り込まれた件数。
+   * レスポンスは通常の {status, body} 形式ではなく、Syoboi 形式 {items, chInfo} のまま返る。
+   * しょぼい側の応答が遅いことがあるため、タイムアウトは長めに取る。
+   */
+  async fetchShoboiAnimeAnyDay(token: string, start: string, end: string): Promise<number> {
+    const path = `/showMinogashiAnime/api/getShoboiAnimeAnyDay`;
+    try {
+      const response = await this.instance.post(
+        path,
+        { filter: 1, alt: 'json', start, end },
+        { headers: { Authorization: `Bearer ${token}` }, timeout: 90000 }
+      );
+      const items = response.data?.items;
+      if (!Array.isArray(items)) {
+        throw new Error('fetchShoboiAnimeAnyDay failed: unexpected response');
+      }
+      return items.length;
+    } catch (e) {
+      if (isUnauthorized(e)) throw new UnauthorizedError();
+      throw e;
+    }
+  }
+
   /** 過去1週間の見逃し（未視聴）一覧を取得する */
   async getWeekMinogashiAnime(): Promise<DayAnimeItem[]> {
     const path = `/showMinogashiAnime/api/getWeekMinogashiAnime`;
